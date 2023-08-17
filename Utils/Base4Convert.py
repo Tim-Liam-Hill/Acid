@@ -3,9 +3,42 @@ import math
 
 ALPHABET = {"A":0, "C":1, "G":2, "T":3}
 TEBAHPLA = {0:"A", 1:"C", 2:"G", 3:"T"} # its for reverse conversion, so its backwards, geddit? 
+num_bits = 15
 
-def toSignedBase4(num):
-    pass 
+# I started writing this code before I actually thought really hard about what I wanted. As a result, 
+# I probably won't need any of this. 
+
+def toSignedBase4(num): #basically: get magnitude of number. If negative, add 1 to magnitude and make sure leading is C 
+    
+    isnegative = False 
+    if(num<1):
+        isnegative = True 
+        num *= -1 
+
+    s = ""
+    while(num > 4):
+        
+        s = str(num%4) + s
+        num = int(num/4)
+        print(num)
+        print(s)
+    s = str(num) + s 
+    ans = ""
+    
+    print(s)
+
+    if(isnegative):
+        s = addOne(s)
+        print(s)
+        for i in s:
+            ans += TEBAHPLA[int(i)]
+        ans = "C" + ans
+    else:
+        for i in s:
+            ans += TEBAHPLA[int(i)]
+        ans = "A" + ans 
+    return(ans)
+
 
 def fromSignedBase4(s): 
 
@@ -69,7 +102,20 @@ def subOne(s): #who needs comments???
     return ans  
 
 def addOne(s): 
-    pass 
+    
+    ans = ""
+    carry = 1 
+    for i in s[::-1]:
+        if(carry == 0):
+            ans = ans + i
+        else: 
+            if(i == "3"):
+                ans = ans + "0" 
+            else:
+                carry = 0
+                ans = ans + str(int(i) + 1)
+
+    return ans 
 
 if __name__=='__main__':
     
@@ -81,7 +127,7 @@ if __name__=='__main__':
     if(s[0] in ALPHABET):
         print(fromSignedBase4(s))
     else: 
-        print(toSignedBase4(s))
+        print(toSignedBase4(int(s)))
 
     
             

@@ -1,0 +1,45 @@
+---------------------------------------------------
+Determine if num divisible by 2 
+---------------------------------------------------
+
+AAT AAA AAA AAA AAA AAG # Push 2 onto s1
+TAG ## Push user inp 
+ACT # user number mod 2 (numbers appear in reverse order they are pushed)
+AAT AAA AAA AAA AAA AAA #push 0
+AGA #start if 
+AGG #boolean condition is equal 
+AAT AAA AAA AAA AAC CGC #push 'Y' ascii code assuming sign magnitude format 
+TTG #print ascii value  
+TCG #else 
+AAT AAA AAA AAA AAC ATG #push 'N' ascii code assuming sign magnitude format 
+TTG #print ascii value  
+TCT #endif 
+
+---------------------------------------------------
+Reverse Star Pyramid
+---------------------------------------------------
+
+Given a number N, print N many rows of "*"
+The number of "*" on a single row is index of row + 1 (starting count from 0)
+so if N = 3 it will look like 
+*
+**
+***
+
+
+
+---------------------------------------------------
+Reverse a string 
+---------------------------------------------------
+
+IDEA: 
+- Get the num of letters from the user 
+- then read in that many letters 
+
+start at the bottom. 
+- swap and push s2 to s1 N-1 times (n is length of string) 
+- go all the way back to beginning string 
+- decrement N 
+- repeat until N == 1
+
+
