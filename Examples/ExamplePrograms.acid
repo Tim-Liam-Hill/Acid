@@ -16,6 +16,24 @@ TTG #print ascii value
 TCT #endif 
 
 ---------------------------------------------------
+Print N "*"
+---------------------------------------------------
+
+Get a number N from the user 
+print N many "*" on the same line.
+Builds up to the next excersize
+
+TAG #Push user input onto S1 
+
+AAT AAA AAA AAA AAA GAG #push ascii code for "*" onto s1 
+ACA #move top of s1 onto s2 
+AAA AAA AAA AAA #define a function with identifier 'AAA AAA AAA' (assuming function names are 3 Codons long) 
+AAT AAA AAA AAA AAA AAA # push 0 onto stack 
+TGA 
+
+TTT #End function 'AAA AAA AAA' 
+
+---------------------------------------------------
 Reverse Star Pyramid
 ---------------------------------------------------
 
@@ -26,6 +44,11 @@ so if N = 3 it will look like
 **
 ***
 
+TAG #Push user input onto S1 
+AAA AAA AAA AAA #define a function with identifier 'AAA AAA AAA' (assuming function names are 3 Codons long) 
+
+
+TTT #End function 'AAA AAA AAA' 
 
 
 ---------------------------------------------------
