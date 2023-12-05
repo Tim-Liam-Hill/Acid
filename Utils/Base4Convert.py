@@ -1,134 +1,52 @@
 import sys
-import math
 
-ALPHABET = {"A":0, "C":1, "G":2, "T":3}
-TEBAHPLA = {0:"A", 1:"C", 2:"G", 3:"T"} # its for reverse conversion, so its backwards, geddit? 
-num_bits = 15
+BIN_MAPPING = {"00":"A", "01":"C", "10":"G", "11":"T"}
+ACID_MAPPING = {"A":"00", "C":"01", "G":"10", "T":"11"}
+ACID_NUM_LENGTH = 15
+ACID_NUM_MAX = 268435455 # double check this. 
 
-# I started writing this code before I actually thought really hard about what I wanted. As a result, 
-# I probably won't need any of this. 
-
-def toSignedBase4(num): #basically: get magnitude of number. If negative, add 1 to magnitude and make sure leading is C 
-    
-    isnegative = False 
-    if(num<1):
-        isnegative = True 
-        num *= -1 
-
-    s = ""
-    while(num > 4):
-        
-        s = str(num%4) + s
-        num = int(num/4)
-        print(num)
-        print(s)
-    s = str(num) + s 
+def intToAcid(i): #takes into account sign
     ans = ""
+    if(i<0):
+        lead = "C" #TODO: maybe don't hardcode this
+    else: lead = "A" #or this 
+
+    temp = format(abs(i), 'b')
+    temp = ("0" * (len(temp) % 2)) + temp #The fact that this is valid python code is wild to me
     
-    print(s)
-
-    if(isnegative):
-        s = addOne(s)
-        print(s)
-        for i in s:
-            ans += TEBAHPLA[int(i)]
-        ans = "C" + ans
-    else:
-        for i in s:
-            ans += TEBAHPLA[int(i)]
-        ans = "A" + ans 
-    return(ans)
-
-
-def fromSignedBase4(s): 
-
-    isnegative = False 
-
-    if(s[0] != 'A'):
-        isnegative =  True 
-
-    s = s[1::] #get rid of sign 'bit'. If it is non 'A' it will be treated as 'C' regardless of what it actually was.
-
-    #from letters to numbers
-    new_s = ""
-    for i in s:
-        if(i not in ALPHABET):
-            raise ValueError(i + " Not a valid letter")
-        new_s = new_s + str(ALPHABET[i])
+    for i in range(0,len(temp),2):  #is there a cool one-liner for this? 
+        ans = ans + BIN_MAPPING[temp[i:i+2]]
     
+    return lead + ("A" * (14 - len(ans))) + ans
 
-    if(isnegative):
-        comp = complement(new_s) 
-        subbed = subOne(comp) 
-        new_s = subbed
+def acidToInt(num): 
+    if(len(num) != ACID_NUM_LENGTH):
+        raise "Incorrect length Acid number"
 
-    new_s = new_s[::-1] #reverse the string 
+    #the method I am using here is just for convenience.
+    #I am basically converting each symbol to it's binary equivalent and 
+    if(num[0] == "A" or num[0] == "C"):
+        multiplier = -1 if num[0] == "C" else 1
 
-    total = 0    
-    for i in range(len(new_s)):
-        total += math.pow(4,i) * int(new_s[i])
+        ans = ""
+        for i in range(1,len(num)):
+            ans = ans + ACID_MAPPING[num[i]]
+        return int(ans,2)*multiplier
 
-    if(isnegative):
-        total *= -1
-    return total
-
-def complement(s):
-
-    ans = "" 
-
-    for i in s: # the most hardcore coding you have ever seen in your life booooooiiiiiiiii 
-        ans = ans + str(3-int(i))
-
-    return ans 
-
-def subOne(s): #who needs comments???
-    #but seriously, takes a base 4 number in number form (no letters, just numbers)
-    #Then subs 1 
-    #If overflow then RIP I guess. 
-
-    r = 1 
-    ans = ""
-    s = s[::-1]
-    for i in s: 
-        if(r != 1):
-            ans = i + ans
-        else: 
-            if(i == "0"):
-                ans = "3" + ans 
-            else: 
-                r = 0     
-                ans = str(int(i) - 1) + ans  
-
-    return ans  
-
-def addOne(s): 
-    
-    ans = ""
-    carry = 1 
-    for i in s[::-1]:
-        if(carry == 0):
-            ans = ans + i
-        else: 
-            if(i == "3"):
-                ans = ans + "0" 
-            else:
-                carry = 0
-                ans = ans + str(int(i) + 1)
-
-    return ans 
-
-if __name__=='__main__':
-    
-    if(len(sys.argv) !=2):
-        print("Usage: Base4Convert.py <num>")
-        exit()
-
-    s = sys.argv[1]
-    if(s[0] in ALPHABET):
-        print(fromSignedBase4(s))
     else: 
-        print(toSignedBase4(int(s)))
+        multiplier = -1 if num[0] == "G" else 1
 
+        ans = ""
+        for i in range(1,len(num)):
+            ans = ans + ACID_MAPPING[num[i]]
+        return (ACID_NUM_MAX - int(ans,2))*multiplier
+
+if __name__=="__main__" :
+    if(len(sys.argv) != 2):
+        print("Usage: Base4Convert.py <val>")
     
-            
+    try:
+        print(intToAcid(int(sys.argv[1]))) 
+    except ValueError: #I don't like the fact this is how we are doing this, but Python. 
+        print(acidToInt(sys.argv[1]))
 
