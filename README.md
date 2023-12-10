@@ -17,6 +17,9 @@ Didn't want to use ANTLR or other tools, wanted to get this from ground up mysel
 TODO: get micsie to make a logo
 TODO: *Can you use return outside of a function?*
 
+TODO: less than 500 lines of code 
+
+
 ## Properties
 
 * Stack based - arithmatic operations work in stack based manner (refer to textbook) (its easier)

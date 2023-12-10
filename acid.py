@@ -6,16 +6,16 @@ import logging
 #Declaring as global since it is the definition of what symbols stand for
 #Best keep it easily accessible and NOT duplicated 
 CODON_OPCODES = {
-    "AAA":  "FUNCSTART", 
-    "TTT":  "FUNCSTART", 
-    "CAA":  "FUNCEND", 
-    "GTT":  "FUNCEND", 
+    "AAA":  ["FUNCSTART1", "FUNCNAME", "FUNCSTART1"], 
+    "TTT":  ["FUNCSTART1", "FUNCNAME", "FUNCSTART1"], 
+    "CAA":  ["FUNCEND1", "FUNCNAME", "FUNCEND1"], 
+    "GTT":  ["FUNCEND1", "FUNCNAME", "FUNCEND1"], 
     "AAC":  "PRINTNUM",
     "TTG":  "PRINTNUM",
     "CAC":  "PRINTCHAR",
     "GTG":  "PRINTCHAR",
-    "AAG":  "CALLFUNC", 
-    "TTC":  "CALLFUNC", 
+    "AAG":  ["CALLFUNC1", "FUNCNAME", "CALLFUNC1"], 
+    "TTC":  ["CALLFUNC1", "FUNCNAME", "CALLFUNC1"], 
     "CAG":  "RETURN",
     "GTA":  "RETURN",
     "AAT":  "PUSH",
@@ -72,14 +72,35 @@ CODON_OPCODES = {
     "GAA":  "COPYS1",
 }
 
+RECIPRICOLS = {"A":"T", "T":"A", "C":"G","G":"C"}
+
+def invertCodon(codon):
+    #maybe there is a fancy way of doing this with string.replace()
+    #but given codon length will always be 3, that's overkill
+    new_codon = ""
+    for c in codon:
+        new_codon += RECIPRICOLS[c] 
+
+    return new_codon 
+
 
 class Node: # node for the AST
 
+    next_id = 1
     #Each node needs to store:
     #-the command type
-    #
-    def __init__(self):
-        pass 
+    #optionally, the value (for most it will be None)
+    def __init__(self, label, value=None):
+        self.id = Node.next_id
+        next_id += 1 
+
+        self.label = label
+        self.value = None 
+
+        
+
+    def print(self):
+
 
 
 #thought: gonna keep this simple but do we need to worry about reading in file line by line?
@@ -87,8 +108,7 @@ class Node: # node for the AST
 """
 Normally a DFA would be needed to handle the Lexical Analysis portion but since my language 
 consists of 3 length char opcodes, it is easier to handle this with a while loop and dictionary.
-TODO: decide what checking is done here? Let's not check for matching function name declarators and other 
-here. Let's do that in the Syntax phase.
+TODO: decide what checking is done here?
 """ 
 class Scanner: #handles Lexical Analysis
 
@@ -118,13 +138,30 @@ class Scanner: #handles Lexical Analysis
             sys.exit()
 
         i = 0 
+        tokens = []
+
         while(i!=len(cleaned_code)):
             next_codon = cleaned_code[i:i+3]
             logging.debug("Scanner.tokenize: codon: " + str(i) + " " + next_codon)
 
+            #Need a special case for functions and numbers (push ops)
+            FUNCS = ["AAA","TTT","CAA","GTT", "AAG", "TTC"]
+            PUSH = ["AAT", "TTA"]
+            if(next_codon in FUNCS):
+                pass 
+            elif(next_codon in PUSH):
+                pass 
+            else: 
+                tokens.push(Node(CODON_OPCODES[next_codon]))
 
             i += 3 
+        return tokens 
 
+    def checkNumber(self, number, num_codons): 
+        pass 
+    
+    def checkFunction(self, func): 
+        pass 
 
 class Parser: #Handles Syntax analysis and builds an AST
 
