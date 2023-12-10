@@ -3,35 +3,42 @@ Determine if num divisible by 2
 ---------------------------------------------------
 
 AAT AAA AAA AAA AAA AAG # Push 2 onto s1
-TAG ## Push user inp 
-ACT # user number mod 2 (numbers appear in reverse order they are pushed)
+CTG ## Push user inp 
+CCG # user number div 2 (numbers appear in reverse order they are pushed)
+CAT #Pop S1 result 
+CCA #Move S2 to S1 
 AAT AAA AAA AAA AAA AAA #push 0
 AGA #start if 
 AGG #boolean condition is equal 
-AAT AAA AAA AAA AAC CGC #push 'Y' ascii code assuming sign magnitude format 
-TTG #print ascii value  
-TCG #else 
-AAT AAA AAA AAA AAC ATG #push 'N' ascii code assuming sign magnitude format 
-TTG #print ascii value  
-TCT #endif 
+AAT AAAAAAAAAAACCGC #push 'Y' ascii code 
+CAC #print ascii value  
+CGC #else 
+AAT AAA AAA AAA AAC ATG #push 'N' ascii code
+CAC #print ascii value  
+CGA #endif 
 
 ---------------------------------------------------
 Print N "*"
 ---------------------------------------------------
 
-Get a number N from the user 
-print N many "*" on the same line.
-Builds up to the next excersize
+# get a number N from the user 
+# print N many "*" on the same line.
+# Builds up to the next exercise
 
-TAG #Push user input onto S1 
+CTC #Push user input onto S1 
 
-AAT AAA AAA AAA AAA GAG #push ascii code for "*" onto s1 
+AAT AAA AAA AAA AAA GGG #push ascii code for "*" onto s1 
 ACA #move top of s1 onto s2 
-AAA AAA AAA AAA #define a function with identifier 'AAA AAA AAA' (assuming function names are 3 Codons long) 
-AAT AAA AAA AAA AAA AAA # push 0 onto stack 
-TGA 
 
-TTT #End function 'AAA AAA AAA' 
+AAT AAA AAA AAA AAA AAA # push 0 onto stack 
+ATG ATC AGG # while not top elements S1 equal 
+CCA # move * from s2 to s1 
+CAC # print ascii 
+ACA # move * back to s2 
+AAT AAAAAAAAAAAAAAC # push 1 onto s1 
+ACC #add 1 to count 
+CTG # end while loop 
+
 
 ---------------------------------------------------
 Reverse Star Pyramid
@@ -44,25 +51,38 @@ so if N = 3 it will look like
 **
 ***
 
-TAG #Push user input onto S1 
-AAA AAA AAA AAA #define a function with identifier 'AAA AAA AAA' (assuming function names are 3 Codons long) 
+CTC #Push user input onto S1 
 
 
-TTT #End function 'AAA AAA AAA' 
+AAA CAT TAC AAA #define a function with identifier 'cattac'
+
+AAT AAA AAA AAA AAA GGG #push ascii code for "*" onto s1 
+ACA #move top of s1 onto s2 
+
+AAT AAA AAA AAA AAA AAA # push 0 onto stack 
+ATG ATC AGG # while not top elements S1 equal 
+CCA # move * from s2 to s1 
+CAC # print ascii 
+ACA # move * back to s2 
+AAT AAAAAAAAAAAAAAC # push 1 onto s1 
+ACC #add 1 to count 
+CTG # end while loop 
+
+# this point we have 1 extra on S1 and S2, so lets return 
+# s1 to how it was when the function 
+
+CAA CAT TAC CAA #end function 'cattac' 
 
 
 ---------------------------------------------------
-Reverse a string 
+Contains Palindrome
 ---------------------------------------------------
 
-IDEA: 
-- Get the num of letters from the user 
-- then read in that many letters 
 
-start at the bottom. 
-- swap and push s2 to s1 N-1 times (n is length of string) 
-- go all the way back to beginning string 
-- decrement N 
-- repeat until N == 1
+
+---------------------------------------------------
+Fibonacci
+---------------------------------------------------
+
 
 

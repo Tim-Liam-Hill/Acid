@@ -1,0 +1,139 @@
+# user will input a string 
+# after this is done, the program will check whether or not 
+# this string contains a palindrome
+# maybe we should also output the indices of start and end?? 
+# or just print the palindrome 
+# maybe we can print all palindromes we find?
+
+REMEMBER CHECKS FOR IF INPUT OF LENGTH 0 OR 1 
+
+#get user input function ----------------------------------------------------------
+
+#function that checks if string is palindrome ----------------------------------------------------------
+
+# idea:  take first letter, get it all the way to the end of string, compare
+# then pop. Increment a counter everytime letters don't match, and if counter == 0 
+# once string is empty then it is a palindrome  
+
+7|racecar
+#create counter for matching chars 
+70|racecar 
+#shift it out of the way 
+07|racecar 
+#create shift counter 
+071|racecar 
+#start shifting 
+071r|acecar 
+071a|rcecar 
+...
+a071|rcecar 
+a072|rcecar 
+a072r|cecar 
+a072c|recar 
+ac072|recar 
+ac073|recar 
+ac073r|ecar 
+ac073e|rcar 
+ace073|rcar 
+ace074|rcar 
+ace074r|car 
+ace074c|rar 
+acec074|rar 
+acec075|rar 
+acec075r|ar 
+acec075a|rr 
+aceca075|rr
+aceca076|rr #so we should start counting from 2, not 1 
+aceca076rr| 
+#is equal so 
+pop 
+pop
+pop
+aceca07|
+#sub 2 for ones we get rid of 
+aceca05|
+#now restore remaining string 
+#create new counter 
+aceca051|
+#shift 3 for last letter 
+aceca|051
+#swapshift swapshift swapshift 
+acec051|a 
+#inc counter 
+acec052|a
+...
+054|aceca 
+055|aceca 
+05|aceca 
+
+Then repeat until length less than 2 
+
+
+# duplicate_string ----------------------------------------------------------
+# idea is we need to copy each of the letters in the string 
+# in reverse order 
+
+|racecar
+r|acecar
+rr|acecar
+#shift the new r all the way to the end 
+r|acecarr
+#loop 
+ra|cecarr 
+raa|cecarr 
+ra|cecarra
+etc 
+
+How do we keep track of the number to shift left and right?
+put it on the stack somewhere. even better idea, swap with front 
+of string in S2 
+
+7|racecar
+#swap s1 s2 
+r|7acecar 
+rr|7acecar
+#swap again 
+r7|racecar 
+#create a counter variable 
+r71|racecar 
+#while not equal, shift and inc (only 2 counter variables so that shifting doesn't need a loop variable)
+r71r|acecar 
+r71a|rcecar 
+r7a1|rcecar 
+ra71|rcecar 
+ra72|rcecar
+ra72r|cecar 
+ra72c|recar 
+ra7c2|recar 
+rac72|recar 
+
+etc 
+racecar77|r
+#pop counter 
+racecar7|r
+#push new counter 
+racecar71|r 
+#swap original string back 
+racecar7|1r
+racecar|71r 
+raceca7|r1r 
+raceca71|rr 
+raceca72|rr 
+...
+77|racecarr
+
+Duplicating a string like this is tedious and there is a better way of doing this 
+
+#approach 2: reverse the duplicate 
+
+|racecar 
+racecar|
+racecarr|
+#shift duplicate to front 
+#while s1 not empty?? 
+|rracecar
+r|racecar 
+rr|acecar 
+check if match, if so then pop 
+if we are doing that though then we need to be able to duplicate strings. :(
+

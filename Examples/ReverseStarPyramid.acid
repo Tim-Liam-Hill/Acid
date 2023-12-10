@@ -1,0 +1,42 @@
+Given a number N, print N many rows of "*"
+The number of "*" on a single row is index of row + 1 (starting count from 0)
+so if N = 3 it will look like 
+*
+**
+***
+
+CTC #Push user input onto S1 
+
+AAT AAA AAA AAA AAA AAA # push 0 onto stack 
+ATG ATC AGG # while not top elements S1 equal 
+
+AAT AAAAAAAAAAAAAAC # push 1 onto s1 
+ACC #add 1 to count 
+AAG CAT TAC AAG # call function cattac 
+
+CTG # end while loop 
+
+
+
+AAA CAT TAC AAA #define a function with identifier 'cattac'
+
+AAT AAA AAA AAA AAA GGG #push ascii code for "*" onto s1 
+ACA #move top of s1 onto s2 
+
+AAT AAA AAA AAA AAA AAA # push 0 onto stack 
+ATG ATC AGG # while not top elements S1 equal 
+CCA # move * from s2 to s1 
+CAC # print ascii 
+ACA # move * back to s2 
+AAT AAAAAAAAAAAAAAC # push 1 onto s1 
+ACC #add 1 to count 
+CTG # end while loop 
+
+# this point we have 1 extra on S1 and S2, so lets return 
+# s1 to how it was when the function 
+
+CAT # pop the count variable off of s1 
+CCA # move * from s2 to s1 
+CAT # pop * from s1 
+#implicit return in the end function 
+CAA CAT TAC CAA #end function 'cattac' 
