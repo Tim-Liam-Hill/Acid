@@ -15,6 +15,7 @@ What is also cool is the mix of paradigms because you are using 2 stacks as oppo
 Didn't want to use ANTLR or other tools, wanted to get this from ground up myself 
 
 TODO: get micsie to make a logo
+TODO: *Can you use return outside of a function?*
 
 ## Properties
 
@@ -37,6 +38,7 @@ Functions
 * Name has restrictions (see later)
 * put brackets if you want, I don't care and neither does acid.
 * functions can be defined anywhere, don't have to be defined before they are called (? sure about this??)
+* Return statement always maps to the function in which in appears.
 
 If any of these decisions do not make sense to you, maybe you should try more psychedelics. If it doesn't make sense to you, that is likely a good thing.
 
@@ -172,6 +174,7 @@ Eh, maybe we can make it just a function that returns true. Still, don't really 
 
 If we can.
 
+*Can you use return outside of a function?*
 
 ## Next Steps
 
