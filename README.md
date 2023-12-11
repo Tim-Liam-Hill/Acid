@@ -21,6 +21,7 @@ TODO: less than 500 lines of code
 
 TODO: decide if have arg to disable palindrome function names 
 
+TODO: explain why my test cases are in files. 
 
 ## Properties
 
@@ -44,6 +45,7 @@ Functions
 * put brackets if you want, I don't care and neither does acid.
 * functions can be defined anywhere, don't have to be defined before they are called (? sure about this??)
 * Return statement always maps to the function in which in appears.
+* Must be of length n*3 (n>= 0)
 
 If any of these decisions do not make sense to you, maybe you should try more psychedelics. If it doesn't make sense to you, that is likely a good thing.
 

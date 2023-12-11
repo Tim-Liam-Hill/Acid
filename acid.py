@@ -217,7 +217,8 @@ class Scanner: #handles Lexical Analysis
         not_allowed_codons = ["AAA", "TTT", "CAA", "GTT", "AAG", "TTC", "CAG", "GTA"]
 
         for codon in not_allowed_codons:
-            if(codon in func_name):
+            for i in range(0, len(func_name), 3):
+            if(codon in func_name[i:i+3]):
                 err = "Function name '" + func_name +"' contains codon '" + codon
                 err += "\nThis will lead to errors. Please adjust this function name to remove the offending codon"
                 raise AcidException(err) 
