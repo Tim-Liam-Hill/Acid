@@ -144,11 +144,8 @@ class Scanner: #handles Lexical Analysis
             err = "Cleaned code length is not multiple of 3, that is NOT scientifically possible."
             raise AcidException(err)
             
-
         i = 0 
         tokens = []
-
-        print(cleaned_code) #TODO: delete
 
         while(i!=len(cleaned_code)):
             next_codon = cleaned_code[i:i+3]
@@ -181,7 +178,7 @@ class Scanner: #handles Lexical Analysis
 
     def extractNumber(self, cleaned_code,next_codon,i,num_codons): 
         if(len(cleaned_code) < i+3+3*(num_codons)): #TODO: check this math 
-            err = "Number is not of length " + str(num_codons)
+            err = "Number " + cleaned_code[i+3:] + " is not of length " + str(num_codons) + " codons"
             raise AcidException(err)
 
         opcodes = CODON_OPCODES[next_codon]
@@ -217,11 +214,11 @@ class Scanner: #handles Lexical Analysis
         not_allowed_codons = ["AAA", "TTT", "CAA", "GTT", "AAG", "TTC", "CAG", "GTA"]
 
         for codon in not_allowed_codons:
-            for i in range(0, len(func_name), 3):
-            if(codon in func_name[i:i+3]):
-                err = "Function name '" + func_name +"' contains codon '" + codon
-                err += "\nThis will lead to errors. Please adjust this function name to remove the offending codon"
-                raise AcidException(err) 
+            for i in range(0, len(func_name), 3): #check only codons, not the entire string.
+                if(codon in func_name[i:i+3]):
+                    err = "Function name '" + func_name +"' contains codon '" + codon + "'"
+                    err += "\nThis will lead to errors. Please adjust this function name to remove the offending codon"
+                    raise AcidException(err) 
         
         terminals = CODON_OPCODES[next_codon]
         nodes = [Node(terminals[0]), Node(terminals[1], func_name), Node(terminals[2])]

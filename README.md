@@ -114,6 +114,9 @@ Can't contain:
 * CAG
 * GTA
 
+Note: can't contain those as codons, so the function name: AAT AAA TAA is invalid but 
+ATA AGA ATA is (even though it contains AAG from [2,4] the check is only at the codon boundary). 
+
 Create util program that tells you if function name is problematic or not. Or maybe even generates palindromic funtion names of length n codons. 
 
 | Primary | Redundant | ExplanationDescription                                                                                                                                             |  |
@@ -122,7 +125,7 @@ Create util program that tells you if function name is problematic or not. Or ma
 | CAA     | GTT       | Function end. Function name appears between these 2 tags. Declares the end of that function and is an implicit return statement.                                  |  |
 | AAC     | TTG       | Prints numerical value stored at S1[0].                                                                                                                            |  |
 | CAC     | GTG       | Prints ascii char from value stored at S1[0].                                                                                                                      |  |
-| AAG     | TTC       | Call function with name between this tag. Can use either for start and end.                                                                                        |  |
+| AAG     | TTC       | Call function with name between this tag. Can use either 'AAG' or 'TTC' for start/end.                                                                                        |  |
 | CAG     | GTA       | Return from function. Different from function end opcode: this is used to leave function prematurely. Function name appears between the two instances.             |  |
 | AAT     | TTA       | Push value onto S1. Value is predetermined length (see data types).                                                                                                |  |
 | CAT     | GTA       | Pop S1. Interpreted as delete from that stack as opposed to pop and use (so C++ stack style pop as opposed to another language))                                   |  |
