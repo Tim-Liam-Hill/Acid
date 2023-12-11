@@ -23,6 +23,8 @@ TODO: decide if have arg to disable palindrome function names
 
 TODO: explain why my test cases are in files. 
 
+TODO: mention drawing the DFA and such, then go make a pull request to the other project after I change their code. 
+
 ## Properties
 
 * Stack based - arithmatic operations work in stack based manner (refer to textbook) (its easier)
