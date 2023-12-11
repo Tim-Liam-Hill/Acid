@@ -18,8 +18,8 @@ CODON_OPCODES = {
     "TTC":  ["CALLFUNC1", "FUNCNAME", "CALLFUNC1"], 
     "CAG":  "RETURN",
     "GTA":  "RETURN",
-    "AAT":  "PUSH",
-    "TTA":  "PUSH",
+    "AAT":  ["PUSH", "NUMBER"],
+    "TTA":  ["PUSH", "NUMBER"],
     "CAT":  "POP",
     "GTA":  "POP",
     "ACA":  "MOVES1S2", 
@@ -83,6 +83,14 @@ def invertCodon(codon):
 
     return new_codon 
 
+"""
+For custom Error messages in exceptions. I thought about putting this in a separate file and having
+a different class for each type of exception, but that seems overkill for this project. If I was
+going to do intense testing then sure, but for my purposes this is enough. 
+"""
+class AcidException(Exception): 
+    def __init__(self, message):
+        super().__init__(message) 
 
 class Node: # node for the AST
 
@@ -92,14 +100,13 @@ class Node: # node for the AST
     #optionally, the value (for most it will be None)
     def __init__(self, label, value=None):
         self.id = Node.next_id
-        next_id += 1 
+        Node.next_id += 1 
 
         self.label = label
-        self.value = None 
-
-        
+        self.value = value
 
     def print(self):
+        print("Node: " + str(self.id) + ", Label: ", self.label + ", Value: " + str(self.value))
 
 
 
@@ -134,34 +141,92 @@ class Scanner: #handles Lexical Analysis
         #reading section.
 
         if(len(cleaned_code) % 3 != 0):
-            logging.error("Cleaned code length is not multiple of 3, that is NOT scientifically possible.")
-            sys.exit()
+            err = "Cleaned code length is not multiple of 3, that is NOT scientifically possible."
+            raise AcidException(err)
+            
 
         i = 0 
         tokens = []
 
+        print(cleaned_code) #TODO: delete
+
         while(i!=len(cleaned_code)):
             next_codon = cleaned_code[i:i+3]
-            logging.debug("Scanner.tokenize: codon: " + str(i) + " " + next_codon)
+            logging.debug("Scanner.tokenize: codon: " + str(i//3) + " " + next_codon)
 
             #Need a special case for functions and numbers (push ops)
             FUNCS = ["AAA","TTT","CAA","GTT", "AAG", "TTC"]
             PUSH = ["AAT", "TTA"]
             if(next_codon in FUNCS):
-                pass 
+                #Need to extract function name, neater to put that in a separate function  
+                node_list, index = self.extractFunctionNodes(next_codon, cleaned_code, i)
+
+                for node in node_list:
+                    tokens.append(node)
+
+                i = index #set i to the start of funcname_end codon so we don't iterate over function_name 
+
             elif(next_codon in PUSH):
-                pass 
+
+                nodes = self.extractNumber(cleaned_code,next_codon,i,num_codons)
+                for n in nodes:
+                    tokens.append(n)
+                i += num_codons*3
+                
             else: 
-                tokens.push(Node(CODON_OPCODES[next_codon]))
+                tokens.append(Node(CODON_OPCODES[next_codon]))
 
             i += 3 
         return tokens 
 
-    def checkNumber(self, number, num_codons): 
-        pass 
+    def extractNumber(self, cleaned_code,next_codon,i,num_codons): 
+        if(len(cleaned_code) < i+3+3*(num_codons)): #TODO: check this math 
+            err = "Number is not of length " + str(num_codons)
+            raise AcidException(err)
+
+        opcodes = CODON_OPCODES[next_codon]
+        logging.debug("Extracted Number: " + cleaned_code[i+3:i+3+3*num_codons])
+        return[Node(opcodes[0]),Node(opcodes[1], cleaned_code[i+3:i+3+3*num_codons])]
+        
     
-    def checkFunction(self, func): 
-        pass 
+    #are we allowing empty function names? I guess so, since they are technically a palindrome. 
+    def extractFunctionNodes(self, next_codon, cleaned_code, i): 
+        logging.debug("Scanner.extractFunctionNodes: extracting function name")
+
+        k = i + 3
+        func_name = "" 
+        recip = invertCodon(next_codon)
+        while(k != len(cleaned_code) and cleaned_code[k:k+3] not in [next_codon, recip] ): 
+            func_name += cleaned_code[k:k+3]
+            k += 3
+
+        if(k == len(cleaned_code)):
+            #throw error, there is no closing tag for function name 
+            err = "Function name does not have a closing tag, that is a bad thing in general"
+
+            if(len(func_name) >=6):
+                err = err + "\nCheck function with name: " + func_name[i+3:i+9] 
+            else: err = err + "\nCheck function with name: " +  func_name
+            raise AcidException(err)
+        
+        if(func_name != func_name[::-1]):
+            err = "Function name '" + func_name +"' is not a palindrome. That isn't in the Spirit of Acid"
+            err = err + "\nPlease ensure all function names are palindromes or alter the source code to remove this check"
+            raise AcidException(err)
+
+        not_allowed_codons = ["AAA", "TTT", "CAA", "GTT", "AAG", "TTC", "CAG", "GTA"]
+
+        for codon in not_allowed_codons:
+            if(codon in func_name):
+                err = "Function name '" + func_name +"' contains codon '" + codon
+                err += "\nThis will lead to errors. Please adjust this function name to remove the offending codon"
+                raise AcidException(err) 
+        
+        terminals = CODON_OPCODES[next_codon]
+        nodes = [Node(terminals[0]), Node(terminals[1], func_name), Node(terminals[2])]
+
+        return nodes, k
+
 
 class Parser: #Handles Syntax analysis and builds an AST
 
@@ -202,7 +267,9 @@ if __name__=="__main__":
 
     logging.basicConfig(level=numeric_level)
     scan = Scanner()
-    scan.run(args.in_file, args.num_codons)
+    nodes = scan.run(args.in_file, args.num_codons)
+    for n in nodes:
+        n.print()
 
     
 

@@ -19,6 +19,8 @@ TODO: *Can you use return outside of a function?*
 
 TODO: less than 500 lines of code 
 
+TODO: decide if have arg to disable palindrome function names 
+
 
 ## Properties
 

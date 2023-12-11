@@ -6,7 +6,7 @@ CCA #Move S2 to S1
 AAT AAA AAA AAA AAA AAA #push 0
 AGA #start if 
 AGG #boolean condition is equal 
-AAT AAAAAAAAAAACCGC #push 'Y' ascii code 
+AAT AAA AAA AAA AAC CGC #push 'Y' ascii code 
 CAC #print ascii value  
 CGC #else 
 AAT AAA AAA AAA AAC ATG #push 'N' ascii code
