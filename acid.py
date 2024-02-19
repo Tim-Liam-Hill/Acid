@@ -79,6 +79,9 @@ CODON_OPCODES = {
 #or implementation of non-terminal states? 
 #maybe we need a way to reference the CFG in this file. Will think about this. 
 
+#Is this class really necessary? The values only get used in one place (the switch statement in the parser)
+#going to implement the interpreter without a similar enum class and see how I feel afterwards. One or the other will change
+#TODO: read and decide on the above
 class SLR_ACTIONS(Enum):
     GO = "go"
     SHIFT = "shift"
@@ -127,16 +130,11 @@ class Token: #Tokens that are stored by Nodes of the AST
         self.label = label
         self.value = value
 
-    def print(self):
-        print("ID: " + str(self.id) + ", Label: ", self.label + ", Value: " + str(self.value))
-    
     def __str__(self):
         return "(ID: " + str(self.id) + ", Label: " + self.label + ", Value: " + str(self.value) +")"
     
     def __repr__(self):
         return "(ID: " + str(self.id) + ", Label: " + self.label + ", Value: " + str(self.value) +")"
-
-      
 
 class ASTNode: #node for the AST 
 
@@ -356,10 +354,11 @@ class Parser: #Handles Syntax analysis and builds an AST
 #believe the implementation of this language requires anything particularly                 
 class Interpreter:
 
+
     FUNC_START_LABEL = "FUNCSTART"
     FUNC_END_LABEL = "FUNCEND"
 
-    def __init__(self, AST): 
+    def __init__(self):
         """
         An explanation is required for the below 2 variables.
         I considered creating a separate class for the symbol table but this seems like overkill. I only
@@ -381,7 +380,7 @@ class Interpreter:
         """
         self.func_mapping = {} 
         self.scope = [{}]
-        self.createFuncMapping(AST)
+        
         
     #It would be easiest to do this with recursion but I think it would be fun to try using a stack
     #there may be a more performant way of doing this (since right now I am storing references to dicts
@@ -395,9 +394,12 @@ class Interpreter:
     we can just check that the next funcend has the same name as the function we are describing, if it doesn't
     then we don't have function name tags in the correct order 
     """
+    #the last element on the scope table becomes our mapping table for future use.
     def createFuncMapping(self, AST):
         logging.debug("Building the symbol table before running the program")
-        stack = [AST] 
+        stack = [AST] #the stack for symbols, not to be confused with the stacks the user code operates on
+        s1 = []
+        s2 = []
         while(len(stack) != 0):
 
             node = stack.pop()
@@ -426,10 +428,74 @@ class Interpreter:
                 logging.debug("Node " + str(node) + " defines end of a function, exiting its scope")
                 self.scope.pop()
             else:
-                for child in node.children[::-1]: #append in reverse order so they appear in order on the stack
-                    stack.append(child)
-        self.func_mapping = self.scope.pop()
-        logging.debug("Function Symbol table: " + str(self.func_mapping))
+                stack += node.children[::-1] #append in reverse order so they appear in order on the stack
+
+        self.func_mapping = self.scope.pop() #empties the scope
+        logging.debug("Function Symbol table complete: " + str(self.func_mapping))
+
+    def run(self, AST): 
+        self.createFuncMapping(AST) #TODO: we will only be pushing references onto the stack each time we enter a scope, so that shouldn't be
+                                    #too bad performance wise right?? May need to check this and reimplement if that isn't the case
+        stack = [ast]
+
+        while(len(stack) != 0):
+            node = stack.pop()
+            """
+            The only symbols we need to bother with implementing functions for are:
+            IF (which can handle the sub elifs and such)
+            LOOP
+            STACK
+            MATH
+            IO
+            CALLFUNC
+            FUNC ->special case, we basically ignore these since they only get executed when called 
+            """
+            match node.token.label: 
+                case "IF":
+                    break
+                case "LOOP":
+                    break 
+                case "STACK":
+                    self.stack(s1,s2,node)
+                    break 
+                case "MATH":
+                    self.math(s1,s2,node)
+                    break 
+                case "IO":
+                    break 
+                case "CALLFUNC":
+                    break 
+                case "FUNC":
+                    break 
+                case default: #just add the children of the current node onto the stack 
+                    stack += node.children[::-1]
+                    break 
+
+    def math(self, s1, s2, node):
+        match node.children[0].token.label:
+            case "add":
+                break 
+            case "sub":
+                break
+            case "mult":
+                break 
+            case "div":
+                break 
+            case "root":
+                break 
+            case "pow":
+                break 
+            case default: 
+                err = "Found symbol '" + node.children[0].token.label + "' which is not a valid symbol for mathematical operations"
+                raise AcidException(err) 
+
+    def stack(self, s1, s2, node):
+        pass
+
+
+
+
+
 
 
 
@@ -456,13 +522,14 @@ if __name__=="__main__":
     scan = Scanner()
     tokens = scan.run(args.in_file, args.num_codons)
     for n in tokens:
-        n.print()
+        print(n)
     
     parser = Parser()
     ast = parser.run(tokens)
     ast.print()
     print("-"*20)
-    interpreter = Interpreter(ast)
+    interpreter = Interpreter()
+    interpreter.run(ast)
     
 
     

@@ -23,6 +23,8 @@ TODO: decide if have arg to disable palindrome function names
 
 TODO: explain why my test cases are in files.
 
+TODO: WRITE UNIT TESTS
+
 TODO: mention drawing the DFA and such, then go make a pull request to the other project after I change their code. Or just create my own, see below.
 
 TODO: ~~write my own NFA to DFA converter. Reeeee.
