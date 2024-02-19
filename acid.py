@@ -128,13 +128,13 @@ class Token: #Tokens that are stored by Nodes of the AST
         self.value = value
 
     def print(self):
-        print("Token: " + str(self.id) + ", Label: ", self.label + ", Value: " + str(self.value))
+        print("ID: " + str(self.id) + ", Label: ", self.label + ", Value: " + str(self.value))
     
     def __str__(self):
-        return "(Token: " + str(self.id) + ", Label: " + self.label + ", Value: " + str(self.value) +")"
+        return "(ID: " + str(self.id) + ", Label: " + self.label + ", Value: " + str(self.value) +")"
     
     def __repr__(self):
-        return "(Token: " + str(self.id) + ", Label: " + self.label + ", Value: " + str(self.value) +")"
+        return "(ID: " + str(self.id) + ", Label: " + self.label + ", Value: " + str(self.value) +")"
 
       
 
@@ -149,19 +149,17 @@ class ASTNode: #node for the AST
         ASTNode.next_id += 1 
 
     def __str__(self):
-        return "(ID: " + str(self.id) + " TOKEN: " + str(self.token) + " CHILDREN: " + str(self.children) + ")"
+        val =""
+        if(self.token.value != None):
+            val = ", VALUE: " + self.token.value
+        return "(ID: " + str(self.id) + " LABEL: " + str(self.token.label) +val+ ", CHILDREN: " + str(len(self.children)) + ")"
     
     def __repr__(self):
-        return "(ID: " + str(self.id) + " TOKEN: " + str(self.token) + " CHILDREN: " + str(self.children) + ")"
+        val =""
+        if(self.token.value != None):
+            val = ", VALUE: " + self.token.value
+        return "(ID: " + str(self.id) + " LABEL: " + str(self.token.label) +val+ ", CHILDREN: " + str(len(self.children)) + ")"    
     
-    def printSimple(self):
-        self.printSimpleRecursive(1)
-    
-    def printSimpleRecursive(self, level):
-        print(" "*level + "|- " + str(self.token.label))
-        for node in self.children:
-            node.printSimpleRecursive(level +1)
-        
     def print(self):
         self.printRecursive(1) 
     
@@ -172,7 +170,9 @@ class ASTNode: #node for the AST
 
 
 #thought: gonna keep this simple but do we need to worry about reading in file line by line?
-#I just want to read everything in all at once.
+#I just want to read everything in all at once, and is it really likely that a single file is larger
+#in size than the memory of the machine this program is running on? --maybe, but that will be considered
+#and end user problem <o.o>
 """
 Normally a DFA would be needed to handle the Lexical Analysis portion but since my language 
 consists of 3 length char opcodes, it is easier to handle this with a while loop and dictionary.
@@ -333,7 +333,6 @@ class Parser: #Handles Syntax analysis and builds an AST
                             raise AcidException(err)
                         node.children.append(popped_elements[2*i]) #append the popped elements since that is where the tokens are
 
-                    node.printSimple()
                     go_state = SLR_TABLE[stack[len(stack)-1]][SLR_TABLE[state][token.label][1][0]]
                     logging.debug("Go state after reduction is: " + str(go_state))
                     
@@ -352,11 +351,87 @@ class Parser: #Handles Syntax analysis and builds an AST
                     err = "No matching action in SLR table with name " + str(SLR_TABLE[state][token.label][0])
                     err += "SLR table is malformed"
                     raise AcidException(err)
-                    
+
+#Going to do this mostly by intuition: I have written an interpreter before in University and I don't
+#believe the implementation of this language requires anything particularly                 
 class Interpreter:
 
-    def __init__(self): 
-        pass 
+    FUNC_START_LABEL = "FUNCSTART"
+    FUNC_END_LABEL = "FUNCEND"
+
+    def __init__(self, AST): 
+        """
+        An explanation is required for the below 2 variables.
+        I considered creating a separate class for the symbol table but this seems like overkill. I only
+        need to keep track of function names.
+        The idea is to have a dictionary. The each time you define a function, you add that function name
+        to the dictionary, map the name to the AST node where the function begins and enter its scope. 
+        You remain in this scope until the function end is reached, after which you exit. If while inside a 
+        function's scope another function is declare we do the same only this function name is defined inside 
+        the previous function's entry in the map. So
+        {
+            func1: {
+                node: ASTNode-reference,
+                func2:{
+                    node: ASTNode-reference
+                }
+            }
+        }
+        We then have a stack to hold the current scope we are in (ie: it holds the sub dict at name <funcname>).
+        """
+        self.func_mapping = {} 
+        self.scope = [{}]
+        self.createFuncMapping(AST)
+        
+    #It would be easiest to do this with recursion but I think it would be fun to try using a stack
+    #there may be a more performant way of doing this (since right now I am storing references to dicts
+    #on the stack) but I don't know if thats needed. We could store funcnames on the stack and use that
+    #to build up but I don't think that's necessary here. In the interpreter itself it may be since
+    #we will be handling function calls 
+    #How to check that the end tag for an inner function does not fall outside an outer function:
+    """
+    Since the rule in the CFG is 
+    FUNC:=FUNCSTART FUNCBODY FUNCEND
+    we can just check that the next funcend has the same name as the function we are describing, if it doesn't
+    then we don't have function name tags in the correct order 
+    """
+    def createFuncMapping(self, AST):
+        logging.debug("Building the symbol table before running the program")
+        stack = [AST] 
+        while(len(stack) != 0):
+
+            node = stack.pop()
+ 
+            if(node.token.label == Interpreter.FUNC_START_LABEL):
+                funcname = node.children[1].token.value 
+                end_funcname = stack[len(stack)-2].children[1].token.value #the name for the ENDFUNC node
+                logging.debug("Node " + str(node) + " defines start of a function with name " + funcname + ", adding to symbol table")
+                
+                if(end_funcname != funcname): #check that the FUNCNAME's second child value matches start tag funcname
+                    err = "Function with name '" + funcname + "' has matching end tag with name '" +  end_funcname
+                    err += "'\nThis implies that function '" + end_funcname + "' does not have its end tag defined within the function body of '"+funcname + "'"
+                    raise AcidException(err)
+
+                for s in self.scope[::-1]:
+                    if(funcname in s):
+                        err = "Redefinition of function " + funcname + " in the same/shared scope"
+                        raise AcidException(err)
+                
+                
+                new_scope = {"funcbody": stack[len(stack)-1]}
+                self.scope[len(self.scope)-1][funcname] = new_scope
+                self.scope.append(new_scope)
+
+            elif(node.token.label == Interpreter.FUNC_END_LABEL):
+                logging.debug("Node " + str(node) + " defines end of a function, exiting its scope")
+                self.scope.pop()
+            else:
+                for child in node.children[::-1]: #append in reverse order so they appear in order on the stack
+                    stack.append(child)
+        self.func_mapping = self.scope.pop()
+        logging.debug("Function Symbol table: " + str(self.func_mapping))
+
+
 
 class Acid: 
 
@@ -385,7 +460,9 @@ if __name__=="__main__":
     
     parser = Parser()
     ast = parser.run(tokens)
-    ast.printSimple()
+    ast.print()
+    print("-"*20)
+    interpreter = Interpreter(ast)
     
 
     

@@ -28,11 +28,11 @@ TODO: mention drawing the DFA and such, then go make a pull request to the other
 TODO: ~~write my own NFA to DFA converter. Reeeee.
 Or I can borrow someone elses?~~  Have done this and have made it create an SLR table as well
 
+TODO: expand on SLR table to allow for better error logging. Best way I can think of to do this is to write intentionally incorrect programs, see the states that errors are thrown on and use this to learn how best to add error conditions to SLR table.
 
-TODO: expand on SLR table to allow for better error logging. Best way I can think of to do this is to write intentionally incorrect programs, see the states that errors are thrown on and use this to learn how best to add error conditions to SLR table. 
+TODO: Incorporate final CFG definition into the code for better error checking. Or is this even necessary?
 
-
-TODO: Incorporate final CFG definition into the code for better error checking. Or is this even necessary? 
+TODO: Mascot is a mushroom.
 
 #### REQUIRES PYTHON 3.10+ (due to switch case)
 
@@ -57,8 +57,10 @@ Functions
 * Name has restrictions (see later)
 * put brackets if you want, I don't care and neither does acid.
 * functions can be defined anywhere, don't have to be defined before they are called (? sure about this??)
-* Return statement always maps to the function in which in appears.
-* Must be of length n*3 (n>= 0)
+* Return statement always maps to the function in which it appears (ie, the last defined function name).
+* The same function can have multiple return statements or none at all
+* Name must be of length n*3 (n>= 0)
+* can't use same function name in same scope
 
 If any of these decisions do not make sense to you, maybe you should try more psychedelics. If it doesn't make sense to you, that is likely a good thing.
 
@@ -229,3 +231,13 @@ With the reduce, the psuedo code is kinda bad. Basically: pop off everything the
 ## Fixing Conflicts
 
 Shift reduce conflict means that we have ambiguity: we could either reduce to a certain non-terminal OR we could continue taking in symbols for a longer non-terminal. That means that there is an overlap in either first or follow for one of our productions.
+
+## Thoughts for later
+
+* definitely worth it to generate tools for the manual operations (DFA, Follow, First etc) since it is fun to play around with to learn more and saves a lot of time in the long run
+* will I reuse those tools though? Probably
+* Turing Tarpits are very easy to fall into
+* Designing a grammar is not always trivial, need to be careful about whether or not your grammar is the correct or allows more (or less) than what you actually want
+* Ideas about how to store data: in terms of "how do I avoid making this an absolute mess of dictionaries?" (answer: you didn't avoid that at first, but maybe later)
+* Interesting how useful DFAs can really be. Also interesting how large a table can end up being for seemingly small grammars
+* Requiring function names to be defined before use makes for easier implementation but makes it more tedious to write programs in the language, so it is something I wanted to avoid.
