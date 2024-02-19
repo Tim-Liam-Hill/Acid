@@ -183,7 +183,7 @@ class Scanner: #handles Lexical Analysis
     def __init__(self): 
         pass 
 
-    def run(self, file_path, num_codons): #todo: let this take in the mode so it can handle DNA mode
+    def run(self, file_path, num_codons): #TODO: let this take in the mode so it can handle DNA mode
         return self.tokenize(file_path, num_codons)
 
     def tokenize(self, file_path, num_codons): 
@@ -326,10 +326,6 @@ class Parser: #Handles Syntax analysis and builds an AST
                     popped_elements = stack[len(stack) -2*prod_length:]
                     stack = stack[0:len(stack) -2*prod_length]
                     
-                    print(expected_elements)
-                    print(popped_elements)
-                    print(prod_length)
-
                     node = ASTNode(Token(SLR_TABLE[state][token.label][1][0])) #creates a new token based on non-terminal on RHS of production
                     for i in range(prod_length):
                         if(popped_elements[2*i].token.label != expected_elements[i]):
@@ -337,6 +333,7 @@ class Parser: #Handles Syntax analysis and builds an AST
                             raise AcidException(err)
                         node.children.append(popped_elements[2*i]) #append the popped elements since that is where the tokens are
 
+                    node.printSimple()
                     go_state = SLR_TABLE[stack[len(stack)-1]][SLR_TABLE[state][token.label][1][0]]
                     logging.debug("Go state after reduction is: " + str(go_state))
                     

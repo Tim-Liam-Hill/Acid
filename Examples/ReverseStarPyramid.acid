@@ -1,5 +1,5 @@
-Given a number N, print N many rows of "*" in a pyramid shape 
-The number of "*" on a single row is index of row + 1 (starting count from 0)
+given a number N, print N many rows of "*" in a pyramid shape 
+yhe number of "*" on a single row is index of row + 1 (starting count from 0)
 so if N = 3 it will look like 
 *
 **
