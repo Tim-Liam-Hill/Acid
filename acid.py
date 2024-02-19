@@ -3,81 +3,95 @@ import re
 import sys
 import logging 
 import json
+from enum import Enum
 
 #Declaring as global since it is the definition of what symbols stand for
 #Best keep it easily accessible and NOT duplicated 
+#names are all lowercase since they correspond to terminals in the CFG which I made all 
+#lowercase to better distinguish from non-terminals
 CODON_OPCODES = {
-    "AAA":  ["FUNCSTART1", "FUNCNAME", "FUNCSTART1"], 
-    "TTT":  ["FUNCSTART1", "FUNCNAME", "FUNCSTART1"], 
-    "CAA":  ["FUNCEND1", "FUNCNAME", "FUNCEND1"], 
-    "GTT":  ["FUNCEND1", "FUNCNAME", "FUNCEND1"], 
-    "AAC":  "PRINTNUM",
-    "TTG":  "PRINTNUM",
-    "CAC":  "PRINTCHAR",
-    "GTG":  "PRINTCHAR",
-    "AAG":  ["CALLFUNC1", "FUNCNAME", "CALLFUNC1"], 
-    "TTC":  ["CALLFUNC1", "FUNCNAME", "CALLFUNC1"], 
-    "CAG":  "RETURN",
-    "GTA":  "RETURN",
-    "AAT":  ["PUSH", "NUMBER"],
-    "TTA":  ["PUSH", "NUMBER"],
-    "CAT":  "POP",
-    "GTA":  "POP",
-    "ACA":  "MOVES1S2", 
-    "TGT":  "MOVES1S2", 
-    "CCA":  "MOVES2S1",
-    "GGT":  "MOVES2S1",
-    "ACC":  "ADD",
-    "TGG":  "ADD",
-    "CCC":  "SUB",
-    "GGG":  "SUB",
-    "ACG":  "MULT",
-    "TGC":  "MULT",
-    "CCG":  "DIV",
-    "GGC":  "DIV",
-    "ACT":  "ROOT",
-    "TGA":  "ROOT",
-    "CCT":  "POW",
-    "GGA":  "POW",
-    "AGA":  "IFSTART",
-    "TCT":  "IFSTART",
-    "CGA":  "IFEND",
-    "GCT":  "IFEND",
-    "AGC":  "ELIF",
-    "TCG":  "ELIF",
-    "CGC":  "ELSE",
-    "CGC":  "ELSE",
-    "AGG":  "EQUALS",
-    "TCC":  "EQUALS",
-    "CGG":  "ISEMPTY", 
-    "CGG":  "ISEMPTY", 
-    "AGT":  "LESSTHAN",
-    "TCA":  "LESSTHAN",
-    "CGT":  "GREATERTHAN", 
-    "GCA":  "GREATERTHAN", 
-    "ATA":  "AND",
-    "TAT":  "AND",
-    "CTA":  "OR", 
-    "GAT":  "OR", 
-    "ATC":  "NOT",
-    "TAG":  "NOT",
-    "CTC":  "USERIN",
-    "GAG":  "USERIN",
-    "ATG":  "LOOPSTART",
-    "TAC":  "LOOPSTART",
-    "CTG":  "LOOPEND", 
-    "GAC":  "LOOPEND", 
-    "ATT":  "SWAP",
-    "TAA":  "SWAP",
-    "CTT":  "COPYS1",
-    "GAA":  "COPYS1",
+    "AAA":  ["funcstart1", "funcname", "funcstart1"], 
+    "TTT":  ["funcstart1", "funcname", "funcstart1"], 
+    "CAA":  ["funcend1", "funcname", "funcend1"], 
+    "GTT":  ["funcend1", "funcname", "funcend1"], 
+    "AAC":  "printnum",
+    "TTG":  "printnum",
+    "CAC":  "printchar",
+    "GTG":  "printchar",
+    "AAG":  ["callfunc1", "funcname", "callfunc1"], 
+    "TTC":  ["callfunc1", "funcname", "callfunc1"], 
+    "CAG":  "return",
+    "GTA":  "return",
+    "AAT":  ["push", "num"],
+    "TTA":  ["push", "num"],
+    "CAT":  "pop",
+    "GTA":  "pop",
+    "ACA":  "moves1s2", 
+    "TGT":  "moves1s2", 
+    "CCA":  "moves2s1",
+    "GGT":  "moves2s1",
+    "ACC":  "add",
+    "TGG":  "add",
+    "CCC":  "sub",
+    "GGG":  "sub",
+    "ACG":  "mult",
+    "TGC":  "mult",
+    "CCG":  "div",
+    "GGC":  "div",
+    "ACT":  "root",
+    "TGA":  "root",
+    "CCT":  "pow",
+    "GGA":  "pow",
+    "AGA":  "ifstart",
+    "TCT":  "ifstart",
+    "CGA":  "ifend",
+    "GCT":  "ifend",
+    "AGC":  "elif",
+    "TCG":  "elif",
+    "CGC":  "els",  #is meant to be 'els' not 'else' since the former is the terminal version, the latter the non-terminal version
+    "CGC":  "els",
+    "AGG":  "equals",
+    "TCC":  "equals",
+    "CGG":  "isempty", 
+    "CGG":  "isempty", 
+    "AGT":  "lessthan",
+    "TCA":  "lessthan",
+    "CGT":  "greaterthan", 
+    "GCA":  "greaterthan", 
+    "ATA":  "and",
+    "TAT":  "and",
+    "CTA":  "or", 
+    "GAT":  "or", 
+    "ATC":  "not",
+    "TAG":  "not",
+    "CTC":  "userin",
+    "GAG":  "userin",
+    "ATG":  "loopstart",
+    "TAC":  "loopstart",
+    "CTG":  "loopend", 
+    "GAC":  "loopend", 
+    "ATT":  "swap",
+    "TAA":  "swap",
+    "CTT":  "copys1",
+    "GAA":  "copys1",
 }
 
-SLR_ACTIONS = {}
+class SLR_ACTIONS(Enum):
+    GO = "go"
+    SHIFT = "shift"
+    REDUCE = "reduce"
+    ACCEPT = "accept"
+    ERROR = ""
+
 
 RECIPRICOLS = {"A":"T", "T":"A", "C":"G","G":"C"}
 
 SLR_TABLE = json.load(open("SLR_TABLE.json"))
+SLR_START_STATE = "0-100-102-104-106-108-11-110-112-114-116-118-13-15-17-19-2-21-23-25-4-43-65-7-77-8-85-88-9-90-92-94-96-98" #TODO: find a more elegant way to record this in the SLR_TABLE json file
+SLR_END_SYMBOL = "$$$" #TODO: also encode this in the SLR_TABLE.json
+CFG_RHS_SEPARATOR = " " #TODO: also encode this into SLR_TABLE.json
+#basically just make SLR_TABLE.json contain itself inside another json object with values for the above. Will
+#add this once I know everything I need to add
 
 def invertCodon(codon):
     #maybe there is a fancy way of doing this with string.replace()
@@ -97,10 +111,10 @@ class AcidException(Exception):
     def __init__(self, message):
         super().__init__(message) 
 
-class Token: # node for the AST
+class Token: #Tokens that are stored by Nodes of the AST
 
     next_id = 1
-    #Each node needs to store:
+    #Each Token needs to store:
     #-the command type
     #optionally, the value (for most it will be None)
     def __init__(self, label, value=None):
@@ -112,7 +126,36 @@ class Token: # node for the AST
 
     def print(self):
         print("Token: " + str(self.id) + ", Label: ", self.label + ", Value: " + str(self.value))
+    
+    def __str__(self):
+        return "(Token: " + str(self.id) + ", Label: " + self.label + ", Value: " + str(self.value) +")"
+    
+    def __repr__(self):
+        return "(Token: " + str(self.id) + ", Label: " + self.label + ", Value: " + str(self.value) +")"
 
+      
+
+class ASTNode: #node for the AST 
+
+    next_id = 1
+
+    def __init__(self, token):
+        self.children = []
+        self.token = token 
+        self.id = ASTNode.next_id 
+        ASTNode.next_id += 1 
+
+    def __str__(self):
+        return "(ID: " + str(self.id) + " TOKEN: " + str(self.token) + " CHILDREN: " + str(self.children) + ")"
+    
+    def __repr__(self):
+        return "(ID: " + str(self.id) + " TOKEN: " + str(self.token) + " CHILDREN: " + str(self.children) + ")"
+    
+    def print(self):
+        pass 
+    
+    def printRecursive(self,level):
+        pass 
 
 
 #thought: gonna keep this simple but do we need to worry about reading in file line by line?
@@ -234,11 +277,69 @@ class Scanner: #handles Lexical Analysis
 class Parser: #Handles Syntax analysis and builds an AST
 
     def __init__(self):
-        pass 
+        self.Node = None
+    
+    def run(self, tokens):
+        self.buildAST(tokens)
 
-    def buildAST(self, cleaned_code):
-        pass 
+    def buildAST(self, tokens):
+        stack = [SLR_START_STATE]
+        tokens.append(Token(SLR_END_SYMBOL))
+
+        while(len(stack) != 0):
+            logging.debug("Stack: " + str(stack))
+            logging.debug("Tokens: " + str(tokens))
+            
+            state = stack[len(stack) -1]
+            token = tokens[0]
+
+            if(len(SLR_TABLE[state][token.label]) == 0 ): #TODO: change this once explicit error messages have been put into the SLR_TABLE json
+                err = "No valid transition in SLR table for state and token, input is not a valid string"
+                err += "\nState: " + str(state) + " Token: " + str(token)
+                raise err 
+            
+            match SLR_TABLE[state][token.label][0]:
+                case SLR_ACTIONS.SHIFT.value: 
+                    logging.debug("Shifting for state " + str(state) + " and token " + str(token))
+                    stack.append(ASTNode(token))
+                    stack.append(SLR_TABLE[state][token.label][1]) #pushing the next state to follow
+                    tokens.pop(0)
+
+                    continue
+                case SLR_ACTIONS.REDUCE.value: 
+                    logging.debug("Reducing for state " + str(state) + " and token " + str(token) + " with production " + SLR_TABLE[state][token.label][1][0] + ":=" +SLR_TABLE[state][token.label][1][1] )
+                    expected_elements = SLR_TABLE[state][token.label][1][1].split(CFG_RHS_SEPARATOR)
+                    prod_length = len(expected_elements)
+                    popped_elements = stack[len(stack) -2*prod_length:]
+                    stack = stack[0:len(stack) -2*prod_length]
+                    
+                    print(expected_elements)
+                    print(popped_elements)
+                    print(prod_length)
+
+                    node = ASTNode(token)
+                    for i in range(len(expected_elements)):
+                        if(popped_elements[2*i].token.label != expected_elements[i]):
+                            err = "Error when reducing: stack tokens do not align with tokens production can produce"
+                            raise err
+                        node.children.append(popped_elements[2*i]) #append the popped elements since that is where the tokens are
+
+                    go_state = SLR_TABLE[stack[len(stack)-1]][SLR_TABLE[state][token.label][1][0]]
+                    logging.debug("Go state after reduction is: " + str(go_state))
+                    return
+
+                    continue
+                case SLR_ACTIONS.ACCEPT.value:
+                    continue
+                case default:
+                    err = "No matching action in SLR table with name " + str(SLR_TABLE[state][token.label][0])
+                    err += "SLR table is malformed"
+                    raise err
+                    
         
+            
+    
+            
 
 class Interpreter:
 
@@ -258,10 +359,6 @@ if __name__=="__main__":
     parser.add_argument("--num_codons",dest='num_codons', help="The number of codons used for numbers (determines range of numerical values). Default = 5", default=5)
     parser.add_argument("--log",dest='log_level', help="The level for logging statements", default="INFO")
     
-    """
-    parser.add_argument("--output",dest='out_path', help="The location in s3 or hdfs where the output should be stored", required=True)
-    parser.add_argument("--country-code", dest='country_code_path', help="The location of the file used to map ActionGeo_FeatureID to country codes", required=True)
-    """
     args = parser.parse_args()
     
     numeric_level = getattr(logging, args.log_level.upper(), None)
@@ -273,6 +370,10 @@ if __name__=="__main__":
     tokens = scan.run(args.in_file, args.num_codons)
     for n in tokens:
         n.print()
+    
+    parser = Parser()
+    parser.run(tokens)
+    #parser.printAST()
 
     
 

@@ -28,6 +28,9 @@ TODO: mention drawing the DFA and such, then go make a pull request to the other
 TODO: write my own NFA to DFA converter. Reeeee.
 Or I can borrow someone elses?
 
+
+#### REQUIRES PYTHON 3.10+ (due to switch case)
+
 ## Properties
 
 * Stack based - arithmatic operations work in stack based manner (refer to textbook) (its easier)
