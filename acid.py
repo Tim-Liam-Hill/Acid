@@ -2,6 +2,7 @@ import argparse
 import re
 import sys
 import logging 
+import json
 
 #Declaring as global since it is the definition of what symbols stand for
 #Best keep it easily accessible and NOT duplicated 
@@ -72,7 +73,11 @@ CODON_OPCODES = {
     "GAA":  "COPYS1",
 }
 
+SLR_ACTIONS = {}
+
 RECIPRICOLS = {"A":"T", "T":"A", "C":"G","G":"C"}
+
+SLR_TABLE = json.load(open("SLR_TABLE.json"))
 
 def invertCodon(codon):
     #maybe there is a fancy way of doing this with string.replace()
@@ -92,21 +97,21 @@ class AcidException(Exception):
     def __init__(self, message):
         super().__init__(message) 
 
-class Node: # node for the AST
+class Token: # node for the AST
 
     next_id = 1
     #Each node needs to store:
     #-the command type
     #optionally, the value (for most it will be None)
     def __init__(self, label, value=None):
-        self.id = Node.next_id
-        Node.next_id += 1 
+        self.id = Token.next_id
+        Token.next_id += 1 
 
         self.label = label
         self.value = value
 
     def print(self):
-        print("Node: " + str(self.id) + ", Label: ", self.label + ", Value: " + str(self.value))
+        print("Token: " + str(self.id) + ", Label: ", self.label + ", Value: " + str(self.value))
 
 
 
@@ -171,7 +176,7 @@ class Scanner: #handles Lexical Analysis
                 i += num_codons*3
                 
             else: 
-                tokens.append(Node(CODON_OPCODES[next_codon]))
+                tokens.append(Token(CODON_OPCODES[next_codon]))
 
             i += 3 
         return tokens 
@@ -183,7 +188,7 @@ class Scanner: #handles Lexical Analysis
 
         opcodes = CODON_OPCODES[next_codon]
         logging.debug("Extracted Number: " + cleaned_code[i+3:i+3+3*num_codons])
-        return[Node(opcodes[0]),Node(opcodes[1], cleaned_code[i+3:i+3+3*num_codons])]
+        return[Token(opcodes[0]),Token(opcodes[1], cleaned_code[i+3:i+3+3*num_codons])]
         
     
     #are we allowing empty function names? I guess so, since they are technically a palindrome. 
@@ -221,7 +226,7 @@ class Scanner: #handles Lexical Analysis
                     raise AcidException(err) 
         
         terminals = CODON_OPCODES[next_codon]
-        nodes = [Node(terminals[0]), Node(terminals[1], func_name), Node(terminals[2])]
+        nodes = [Token(terminals[0]), Token(terminals[1], func_name), Token(terminals[2])]
 
         return nodes, k
 
@@ -233,7 +238,7 @@ class Parser: #Handles Syntax analysis and builds an AST
 
     def buildAST(self, cleaned_code):
         pass 
-        #basically: have a map for each token to what that function actually does. 
+        
 
 class Interpreter:
 
@@ -265,8 +270,8 @@ if __name__=="__main__":
 
     logging.basicConfig(level=numeric_level)
     scan = Scanner()
-    nodes = scan.run(args.in_file, args.num_codons)
-    for n in nodes:
+    tokens = scan.run(args.in_file, args.num_codons)
+    for n in tokens:
         n.print()
 
     

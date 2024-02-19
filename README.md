@@ -12,18 +12,21 @@ In any case, the idea was to have fun and work on something interesting. I enjoy
 
 What is also cool is the mix of paradigms because you are using 2 stacks as opposed to variables. Granted, not quite a Turing machine since there are a lot of nice to have higher level features, but there are some things/algorithms that would force you to approach it more like a turing machine than a regular programming language (give example, is there even one??).
 
-Didn't want to use ANTLR or other tools, wanted to get this from ground up myself 
+Didn't want to use ANTLR or other tools, wanted to get this from ground up myself
 
 TODO: get micsie to make a logo
 TODO: *Can you use return outside of a function?*
 
-TODO: less than 500 lines of code 
+TODO: less than 500 lines of code
 
-TODO: decide if have arg to disable palindrome function names 
+TODO: decide if have arg to disable palindrome function names
 
-TODO: explain why my test cases are in files. 
+TODO: explain why my test cases are in files.
 
-TODO: mention drawing the DFA and such, then go make a pull request to the other project after I change their code. 
+TODO: mention drawing the DFA and such, then go make a pull request to the other project after I change their code. Or just create my own, see below.
+
+TODO: write my own NFA to DFA converter. Reeeee.
+Or I can borrow someone elses?
 
 ## Properties
 
@@ -75,6 +78,8 @@ C--G and so on.
 
 That's how my visualisation will work.
 
+TODO: implement and make it look like the code is rotating.
+
 ## Numbers
 
 * numbers are 5 codons long
@@ -116,18 +121,18 @@ Can't contain:
 * CAG
 * GTA
 
-Note: can't contain those as codons, so the function name: AAT AAA TAA is invalid but 
-ATA AGA ATA is (even though it contains AAG from [2,4] the check is only at the codon boundary). 
+Note: can't contain those as codons, so the function name: AAT AAA TAA is invalid but
+ATA AGA ATA is (even though it contains AAG from [2,4] the check is only at the codon boundary).
 
-Create util program that tells you if function name is problematic or not. Or maybe even generates palindromic funtion names of length n codons. 
+Create util program that tells you if function name is problematic or not. Or maybe even generates palindromic funtion names of length n codons.
 
 | Primary | Redundant | ExplanationDescription                                                                                                                                             |  |
 | ------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | - |
 | AAA     | TTT       | Function name declarator. Function name is what appears between this tag. You can use either for the start or for the end.                                         |  |
-| CAA     | GTT       | Function end. Function name appears between these 2 tags. Declares the end of that function and is an implicit return statement.                                  |  |
+| CAA     | GTT       | Function end. Function name appears between these 2 tags. Declares the end of that function and is an implicit return statement.                                   |  |
 | AAC     | TTG       | Prints numerical value stored at S1[0].                                                                                                                            |  |
 | CAC     | GTG       | Prints ascii char from value stored at S1[0].                                                                                                                      |  |
-| AAG     | TTC       | Call function with name between this tag. Can use either 'AAG' or 'TTC' for start/end.                                                                                        |  |
+| AAG     | TTC       | Call function with name between this tag. Can use either 'AAG' or 'TTC' for start/end.                                                                             |  |
 | CAG     | GTA       | Return from function. Different from function end opcode: this is used to leave function prematurely. Function name appears between the two instances.             |  |
 | AAT     | TTA       | Push value onto S1. Value is predetermined length (see data types).                                                                                                |  |
 | CAT     | GTA       | Pop S1. Interpreted as delete from that stack as opposed to pop and use (so C++ stack style pop as opposed to another language))                                   |  |
@@ -190,10 +195,29 @@ If we can.
 
 ## Next Steps
 
-In future might expand on this and make a programming language that can be improved via random mutation and descent with modification. Still, far from that for now. 
+In future might expand on this and make a programming language that can be improved via random mutation and descent with modification. Still, far from that for now.
 
-
-Website with interpreter for web use. 
-
+Website with interpreter for web use.
 
 VScode highighter.
+
+## Things to test
+
+* loops and ifs with empty bodys
+
+## Things I have learned
+
+* Still trying to wrap my head around SLR parsing
+* My understanding is that we have a CFG that describes the grammar of our language
+* We then need to get this into an unambiguous format
+* Once we do that, it essentially becomes almost regular, and we can use a stack and a DFA to determine how the tokens we have in our output language were generated according the the rules of the CFG
+* Essentially, we work beackwards. The reason we need unambiguity is because of the meaning we impose on the symbols within the CFG (eg, CFG doesn't necessarily adhere to rules of precedence we want to apply to our language)
+* Wild
+* We are kind of going back and forth on the DFA since we remember previous states
+* So I think it is a thing of the DFA current State tells us what could be next (since it knows how for each rule things can go together and is a combination of all rules)
+
+With the reduce, the psuedo code is kinda bad. Basically: pop off everything then BEFORE adding non-terminal to stack, copy the top of the stack into temp variable. Use that as state for cross referencing table.
+
+## Fixing Conflicts
+
+Shift reduce conflict means that we have ambiguity: we could either reduce to a certain non-terminal OR we could continue taking in symbols for a longer non-terminal. That means that there is an overlap in either first or follow for one of our productions.
