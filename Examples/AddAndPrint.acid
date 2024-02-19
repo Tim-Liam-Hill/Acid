@@ -1,0 +1,4 @@
+AAT AAA AAA AAA AAA AAG # push 2 onto s1
+AAT AAA AAA AAA AAA AAC # push 1 onto s1
+ACC #add numbers and store in s1 
+AAC #print top of s1 as a number

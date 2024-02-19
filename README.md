@@ -25,9 +25,14 @@ TODO: explain why my test cases are in files.
 
 TODO: mention drawing the DFA and such, then go make a pull request to the other project after I change their code. Or just create my own, see below.
 
-TODO: write my own NFA to DFA converter. Reeeee.
-Or I can borrow someone elses?
+TODO: ~~write my own NFA to DFA converter. Reeeee.
+Or I can borrow someone elses?~~  Have done this and have made it create an SLR table as well
 
+
+TODO: expand on SLR table to allow for better error logging. Best way I can think of to do this is to write intentionally incorrect programs, see the states that errors are thrown on and use this to learn how best to add error conditions to SLR table. 
+
+
+TODO: Incorporate final CFG definition into the code for better error checking. Or is this even necessary? 
 
 #### REQUIRES PYTHON 3.10+ (due to switch case)
 
@@ -144,7 +149,7 @@ Create util program that tells you if function name is problematic or not. Or ma
 | ACC     | TGG       | Add top 2 values of S1 and store result in S1. Essentially pops S1 twice and pushes answer onto S1.                                                                |  |
 | CCC     | GGG       | Sub top 2 values of S1 and store result in S1. Essentially pops S1 twice and pushes S[0] - S[1] onto S1.                                                          |  |
 | ACG     | TGC       | Mult top 2 values of S1.                                                                                                                                           |  |
-| CCG     | GGC       | Divide top 2 values of S1. Pushes remainder onto S2!!                                                                                                              |  |
+| CCG     | GGC       | Divide top 2 values of S1. Pushes remainder onto S2!! (Number that is popped first is dividend, second number is divisor )                                        |  |
 | ACT     | TGA       | Root operation. S[0] to the root of S[1]))                                                                                                                         |  |
 | CCT     | GGA       | Pow (S[0] ^ S[1]) and push result to S1                                                                                                                            |  |
 | AGA     | TCT       | Start if statement block                                                                                                                                           |  |

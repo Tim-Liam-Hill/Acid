@@ -75,6 +75,9 @@ CODON_OPCODES = {
     "CTT":  "copys1",
     "GAA":  "copys1",
 }
+#TODO: add a dict for valid Non-terminals for better checking?? where to incorporate, in the parser 
+#or implementation of non-terminal states? 
+#maybe we need a way to reference the CFG in this file. Will think about this. 
 
 class SLR_ACTIONS(Enum):
     GO = "go"
@@ -87,7 +90,7 @@ class SLR_ACTIONS(Enum):
 RECIPRICOLS = {"A":"T", "T":"A", "C":"G","G":"C"}
 
 SLR_TABLE = json.load(open("SLR_TABLE.json"))
-SLR_START_STATE = "0-100-102-104-106-108-11-110-112-114-116-118-13-15-17-19-2-21-23-25-4-43-65-7-77-8-85-88-9-90-92-94-96-98" #TODO: find a more elegant way to record this in the SLR_TABLE json file
+SLR_START_STATE = "0-100-102-104-106-108-11-110-112-114-116-118-13-15-17-19-2-21-23-41-5-6-65-7-77-85-88-9-90-92-94-96-98" #TODO: find a more elegant way to record this in the SLR_TABLE json file
 SLR_END_SYMBOL = "$$$" #TODO: also encode this in the SLR_TABLE.json
 CFG_RHS_SEPARATOR = " " #TODO: also encode this into SLR_TABLE.json
 #basically just make SLR_TABLE.json contain itself inside another json object with values for the above. Will
@@ -151,11 +154,21 @@ class ASTNode: #node for the AST
     def __repr__(self):
         return "(ID: " + str(self.id) + " TOKEN: " + str(self.token) + " CHILDREN: " + str(self.children) + ")"
     
+    def printSimple(self):
+        self.printSimpleRecursive(1)
+    
+    def printSimpleRecursive(self, level):
+        print(" "*level + "|- " + str(self.token.label))
+        for node in self.children:
+            node.printSimpleRecursive(level +1)
+        
     def print(self):
-        pass 
+        self.printRecursive(1) 
     
     def printRecursive(self,level):
-        pass 
+        print(" "*level + "|- " + str(self))
+        for node in self.children:
+            node.printRecursive(level +1)
 
 
 #thought: gonna keep this simple but do we need to worry about reading in file line by line?
@@ -280,7 +293,7 @@ class Parser: #Handles Syntax analysis and builds an AST
         self.Node = None
     
     def run(self, tokens):
-        self.buildAST(tokens)
+        return self.buildAST(tokens)
 
     def buildAST(self, tokens):
         stack = [SLR_START_STATE]
@@ -294,9 +307,9 @@ class Parser: #Handles Syntax analysis and builds an AST
             token = tokens[0]
 
             if(len(SLR_TABLE[state][token.label]) == 0 ): #TODO: change this once explicit error messages have been put into the SLR_TABLE json
-                err = "No valid transition in SLR table for state and token, input is not a valid string"
+                err = "No valid transition in SLR table for state " + str(state) + " and token " + str(token) + ", input is not a Acid program"
                 err += "\nState: " + str(state) + " Token: " + str(token)
-                raise err 
+                raise AcidException(err) 
             
             match SLR_TABLE[state][token.label][0]:
                 case SLR_ACTIONS.SHIFT.value: 
@@ -309,7 +322,7 @@ class Parser: #Handles Syntax analysis and builds an AST
                 case SLR_ACTIONS.REDUCE.value: 
                     logging.debug("Reducing for state " + str(state) + " and token " + str(token) + " with production " + SLR_TABLE[state][token.label][1][0] + ":=" +SLR_TABLE[state][token.label][1][1] )
                     expected_elements = SLR_TABLE[state][token.label][1][1].split(CFG_RHS_SEPARATOR)
-                    prod_length = len(expected_elements)
+                    prod_length = len(expected_elements) if expected_elements[0] != '' else 0 #a check for empty productions (eg: R:=)
                     popped_elements = stack[len(stack) -2*prod_length:]
                     stack = stack[0:len(stack) -2*prod_length]
                     
@@ -317,30 +330,32 @@ class Parser: #Handles Syntax analysis and builds an AST
                     print(popped_elements)
                     print(prod_length)
 
-                    node = ASTNode(token)
-                    for i in range(len(expected_elements)):
+                    node = ASTNode(Token(SLR_TABLE[state][token.label][1][0])) #creates a new token based on non-terminal on RHS of production
+                    for i in range(prod_length):
                         if(popped_elements[2*i].token.label != expected_elements[i]):
                             err = "Error when reducing: stack tokens do not align with tokens production can produce"
-                            raise err
+                            raise AcidException(err)
                         node.children.append(popped_elements[2*i]) #append the popped elements since that is where the tokens are
 
                     go_state = SLR_TABLE[stack[len(stack)-1]][SLR_TABLE[state][token.label][1][0]]
                     logging.debug("Go state after reduction is: " + str(go_state))
-                    return
+                    
+                    if(len(go_state) == 0 or go_state[0] != SLR_ACTIONS.GO.value):
+                        err = "Error when reducing: invalid 'go' state to follow after reducing by production"
+                        err += "\nThis is likely due to a malformed SLR table"
+                        raise AcidException(err)
 
-                    continue
+                    stack.append(node) 
+                    stack.append(go_state[1])
+                    continue 
                 case SLR_ACTIONS.ACCEPT.value:
-                    continue
+                    return stack[1]
+
                 case default:
                     err = "No matching action in SLR table with name " + str(SLR_TABLE[state][token.label][0])
                     err += "SLR table is malformed"
-                    raise err
+                    raise AcidException(err)
                     
-        
-            
-    
-            
-
 class Interpreter:
 
     def __init__(self): 
@@ -372,8 +387,9 @@ if __name__=="__main__":
         n.print()
     
     parser = Parser()
-    parser.run(tokens)
-    #parser.printAST()
+    ast = parser.run(tokens)
+    ast.printSimple()
+    
 
     
 

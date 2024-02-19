@@ -1,5 +1,5 @@
 AAT AAA AAA AAA AAA AAG # Push 2 onto s1
-CTG ## Push user inp 
+CTC ## Push user inp 
 CCG # user number div 2 (numbers appear in reverse order they are pushed)
 CAT #Pop S1 result 
 CCA #Move S2 to S1 
