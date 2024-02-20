@@ -4,6 +4,7 @@ import sys
 import logging 
 import json
 from enum import Enum
+import math
 
 #Declaring as global since it is the definition of what symbols stand for
 #Best keep it easily accessible and NOT duplicated 
@@ -316,7 +317,6 @@ class Parser: #Handles Syntax analysis and builds an AST
                     stack.append(SLR_TABLE[state][token.label][1]) #pushing the next state to follow
                     tokens.pop(0)
 
-                    continue
                 case SLR_ACTIONS.REDUCE.value: 
                     logging.debug("Reducing for state " + str(state) + " and token " + str(token) + " with production " + SLR_TABLE[state][token.label][1][0] + ":=" +SLR_TABLE[state][token.label][1][1] )
                     expected_elements = SLR_TABLE[state][token.label][1][1].split(CFG_RHS_SEPARATOR)
@@ -341,7 +341,7 @@ class Parser: #Handles Syntax analysis and builds an AST
 
                     stack.append(node) 
                     stack.append(go_state[1])
-                    continue 
+                     
                 case SLR_ACTIONS.ACCEPT.value:
                     return stack[1]
 
@@ -398,8 +398,7 @@ class Interpreter:
     def createFuncMapping(self, AST):
         logging.debug("Building the symbol table before running the program")
         stack = [AST] #the stack for symbols, not to be confused with the stacks the user code operates on
-        s1 = []
-        s2 = []
+
         while(len(stack) != 0):
 
             node = stack.pop()
@@ -437,6 +436,8 @@ class Interpreter:
         self.createFuncMapping(AST) #TODO: we will only be pushing references onto the stack each time we enter a scope, so that shouldn't be
                                     #too bad performance wise right?? May need to check this and reimplement if that isn't the case
         stack = [ast]
+        s1 = []
+        s2 = []
 
         while(len(stack) != 0):
             node = stack.pop()
@@ -452,39 +453,68 @@ class Interpreter:
             """
             match node.token.label: 
                 case "IF":
-                    break
+                    pass
                 case "LOOP":
-                    break 
+                    #basically, check bool condition and if true push loop node back onto stack, followed by pushing loopbody
+                
+                    pass
                 case "STACK":
                     self.stack(s1,s2,node)
-                    break 
+                    
                 case "MATH":
                     self.math(s1,s2,node)
-                    break 
+                     
                 case "IO":
                     break 
                 case "CALLFUNC":
-                    break 
+                    pass
                 case "FUNC":
-                    break 
+                    pass
                 case default: #just add the children of the current node onto the stack 
                     stack += node.children[::-1]
-                    break 
+                    
 
     def math(self, s1, s2, node):
+
+        #all of the below operations require 2<= elements on s1, so we can do the 
+        #error check once before the switch case
+        if(len(s1) < 2):
+            err = "Attempting to perform action '" + node.children[0].token.label + "' on s1 which "
+            err += "only has " + str(len(s1))+ "<2 elements."
+            raise AcidException(err)
+        
+        num1 = s1.pop()
         match node.children[0].token.label:
-            case "add":
-                break 
+            case "add":  
+                s1.append(num1 + s1.pop())
             case "sub":
-                break
+                s1.append(num1 - s1.pop())
             case "mult":
-                break 
+                s1.append(num1 * s1.pop())
             case "div":
-                break 
+                num2 = s1.pop()
+                if(num2 == 0): #Python would throw an exception but its better for my own language to throw this error 
+                    raise AcidException("Attempting to divide by zero")
+                s1.append(num1 // num2)
+                s2.append(num1 % num2)
             case "root":
-                break 
+                #TODO: what extra checks do we want to put here?
+                num2 = s1.pop()
+                if(num1 < 0): 
+                    if(num2 % 2 == 0):
+                        raise AcidException("Cannot find nth power of a negative number when n is even")
+                    root = math.floor((-1*num1)**(1/num2))
+                    rem = num1 + root**(num2)
+                    s1.append(root)
+                    s2.append(rem)
+                else: 
+                    root = math.floor(num1**(1/num2))
+                    rem = num1 - root**(num2)
+                    s1.append(root)
+                    s2.append(rem)
+
             case "pow":
-                break 
+                s1.append(num1**(s1.pop))
             case default: 
                 err = "Found symbol '" + node.children[0].token.label + "' which is not a valid symbol for mathematical operations"
                 raise AcidException(err) 
@@ -492,6 +522,9 @@ class Interpreter:
     def stack(self, s1, s2, node):
         pass
 
+    #TODO: allow for output to be sent somewhere besides console? would help for testing
+    def io():
+        pass 
 
 
 

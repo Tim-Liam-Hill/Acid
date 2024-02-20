@@ -36,6 +36,8 @@ TODO: Incorporate final CFG definition into the code for better error checking. 
 
 TODO: Mascot is a mushroom.
 
+TODO: decide on exact root functionality. 
+
 #### REQUIRES PYTHON 3.10+ (due to switch case)
 
 ## Properties
@@ -150,8 +152,8 @@ Create util program that tells you if function name is problematic or not. Or ma
 | CAT     | GTA       | Pop S1. Interpreted as delete from that stack as opposed to pop and use (so C++ stack style pop as opposed to another language))                                   |  |
 | ACA     | TGT       | Push top of S1 onto S2 then pop S1. Basically, move S1 to S2                                                                                                       |  |
 | CCA     | GGT       | Push top of S2 onto S1 then pop S2. Basically, move S2 to S1                                                                                                      |  |
-| ACC     | TGG       | Add top 2 values of S1 and store result in S1. Essentially pops S1 twice and pushes answer onto S1.                                                                |  |
-| CCC     | GGG       | Sub top 2 values of S1 and store result in S1. Essentially pops S1 twice and pushes S[0] - S[1] onto S1.                                                          |  |
+| ACC     | TGG       | Add top 2 values of S1 and store result in S1. Follows Postfix notation                                                                                            |  |
+| CCC     | GGG       | Sub top 2 values of S1 and store result in S1. Follows Postfix notation                                                                                           |  |
 | ACG     | TGC       | Mult top 2 values of S1.                                                                                                                                           |  |
 | CCG     | GGC       | Divide top 2 values of S1. Pushes remainder onto S2!! (Number that is popped first is dividend, second number is divisor )                                        |  |
 | ACT     | TGA       | Root operation. S[0] to the root of S[1]))                                                                                                                         |  |
@@ -243,3 +245,5 @@ Shift reduce conflict means that we have ambiguity: we could either reduce to a 
 * Ideas about how to store data: in terms of "how do I avoid making this an absolute mess of dictionaries?" (answer: you didn't avoid that at first, but maybe later)
 * Interesting how useful DFAs can really be. Also interesting how large a table can end up being for seemingly small grammars
 * Requiring function names to be defined before use makes for easier implementation but makes it more tedious to write programs in the language, so it is something I wanted to avoid.
+* Using stack based language model and Postfix notation is great if you don't want to use brackets, but in a sense my function definition tags are glorified brackets in a way
+* What is the remainder for a root operation anyway?? Is it useful in general to know this in the same way that it is useful to know remainder for division? Doesn't seem like it
