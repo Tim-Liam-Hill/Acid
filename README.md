@@ -10,12 +10,12 @@ TODO: add reasons.
 
 In any case, the idea was to have fun and work on something interesting. I enjoy programming language design and concepts surrounding it. Plus its an excuse to program, which I haven't done in a while.
 
-What is also cool is the mix of paradigms because you are using 2 stacks as opposed to variables. Granted, not quite a Turing machine since there are a lot of nice to have higher level features, but there are some things/algorithms that would force you to approach it more like a turing machine than a regular programming language (give example, is there even one??).
+What is also cool is the mix of paradigms because you are using 2 stacks as opposed to variables. Granted, not quite a Turing machine since there are a lot of nice to have higher level features, but there are some things/algorithms that would force you to approach it more like a turing machine than a regular programming language (give example, is there even one, it seems like the checking of palindromes is an example.).
 
-Didn't want to use ANTLR or other tools, wanted to get this from ground up myself
+Didn't want to use ANTLR or other tools, wanted to get this from ground up myself (and as a result have developed some tools).
 
 TODO: get micsie to make a logo
-TODO: *Can you use return outside of a function?*
+TODO: *~~Can you use return outside of a function?~~  No (at least, you shouldn't be able to, need to test this)
 
 TODO: less than 500 lines of code
 
@@ -38,6 +38,14 @@ TODO: Mascot is a mushroom.
 
 TODO: decide on exact root functionality. 
 
+TODO: decide on what extra funny run modes to add and implement (eg: visualizer mode, acid num mode). Do we want to allow for REPL?
+
+TODO: color tokens in VSCode?? In General color tokens (maybe in visualizer)
+
+TODO: do we need to 'isempty' functions? Probably not but should review 
+
+TODO: utility that inverts code
+
 #### REQUIRES PYTHON 3.10+ (due to switch case)
 
 ## Properties
@@ -50,7 +58,7 @@ TODO: decide on exact root functionality.
 
 Datatypes?
 
-* Basically one Datatype
+* Basically one Datatype (int)
 * Can be interpreted as Asci.
 
 Functions
@@ -59,14 +67,14 @@ Functions
 * Name must be a palindrome
 * Scope of function is to outer function it finds itself in.
 * Name has restrictions (see later)
-* put brackets if you want, I don't care and neither does acid.
-* functions can be defined anywhere, don't have to be defined before they are called (? sure about this??)
+* put brackets if you want, I don't care and neither does Acid.
+* functions can be defined anywhere, don't have to be defined before they are called ~~(? sure about this??)~~
 * Return statement always maps to the function in which it appears (ie, the last defined function name).
 * The same function can have multiple return statements or none at all
 * Name must be of length n*3 (n>= 0)
 * can't use same function name in same scope
 
-If any of these decisions do not make sense to you, maybe you should try more psychedelics. If it doesn't make sense to you, that is likely a good thing.
+If any of these decisions do not make sense to you, maybe you should try more psychedelics (although if it doesn't make sense to you, that is likely a good thing.)
 
 ## Program Execution
 
@@ -74,7 +82,7 @@ First goes through and checks everything. If single syntax error, it won't run. 
 
 ## Visualisation
 
-If we want the visualisation to come out nicely then the recipricol needs to be the redundant for each opcode. We may also need to do some magic with our number system. My visualisation is different in this way: lets say our program is 'AAC CAA GTG ACA'. This represents one side of the DNA sequence, so to do
+If we want the visualisation to come out nicely then the recipricol needs to be the redundant for each opcode. We may also need to do some magic with our number system. My visualisation is different to other languages in this way: lets say our program is 'AAC CAA GTG ACA'. This represents one side of the DNA sequence, so to do
 
 AA
 
@@ -82,7 +90,7 @@ C-C
 
 A--A
 
-Doesn't make sense. Instead there would be a reciprocal side: the complement:
+Doesn't make sense (in real life DNA, A-A is invalid). Instead there would be a reciprocal side; the complement:
 
 AT
 
@@ -140,40 +148,40 @@ ATA AGA ATA is (even though it contains AAG from [2,4] the check is only at the 
 
 Create util program that tells you if function name is problematic or not. Or maybe even generates palindromic funtion names of length n codons.
 
-| Primary | Redundant | ExplanationDescription                                                                                                                                             |  |
-| ------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | - |
-| AAA     | TTT       | Function name declarator. Function name is what appears between this tag. You can use either for the start or for the end.                                         |  |
-| CAA     | GTT       | Function end. Function name appears between these 2 tags. Declares the end of that function and is an implicit return statement.                                   |  |
-| AAC     | TTG       | Prints numerical value stored at S1[0].                                                                                                                            |  |
-| CAC     | GTG       | Prints ascii char from value stored at S1[0].                                                                                                                      |  |
-| AAG     | TTC       | Call function with name between this tag. Can use either 'AAG' or 'TTC' for start/end.                                                                             |  |
-| CAG     | GTA       | Return from function. Different from function end opcode: this is used to leave function prematurely. Function name appears between the two instances.             |  |
-| AAT     | TTA       | Push value onto S1. Value is predetermined length (see data types).                                                                                                |  |
-| CAT     | GTA       | Pop S1. Interpreted as delete from that stack as opposed to pop and use (so C++ stack style pop as opposed to another language))                                   |  |
-| ACA     | TGT       | Push top of S1 onto S2 then pop S1. Basically, move S1 to S2                                                                                                       |  |
-| CCA     | GGT       | Push top of S2 onto S1 then pop S2. Basically, move S2 to S1                                                                                                      |  |
-| ACC     | TGG       | Add top 2 values of S1 and store result in S1. Follows Postfix notation                                                                                            |  |
-| CCC     | GGG       | Sub top 2 values of S1 and store result in S1. Follows Postfix notation                                                                                           |  |
-| ACG     | TGC       | Mult top 2 values of S1.                                                                                                                                           |  |
-| CCG     | GGC       | Divide top 2 values of S1. Pushes remainder onto S2!! (Number that is popped first is dividend, second number is divisor )                                        |  |
-| ACT     | TGA       | Root operation. S[0] to the root of S[1]))                                                                                                                         |  |
-| CCT     | GGA       | Pow (S[0] ^ S[1]) and push result to S1                                                                                                                            |  |
-| AGA     | TCT       | Start if statement block                                                                                                                                           |  |
-| CGA     | GCT       | End if statement block                                                                                                                                             |  |
-| AGC     | TCG       | Else if                                                                                                                                                            |  |
-| CGC     | GCG       | Else                                                                                                                                                               |  |
-| AGG     | TCC       | Equals S1 (doesn't remove). Treats both items as numbers.                                                                                                          |  |
-| CGG     | GCC       | Check if S1 is empty. Allows for more convenient operations(Original) -> Not Equals S1 (doesn't remove)                                                            |  |
-| AGT     | TCA       | Less than                                                                                                                                                          |  |
-| CGT     | GCA       | Greater than                                                                                                                                                       |  |
-| ATA     | TAT       | And                                                                                                                                                                |  |
-| CTA     | GAT       | Or                                                                                                                                                                 |  |
-| ATC     | TAG       | Not                                                                                                                                                                |  |
-| CTC     | GAG       | Push user input onto S1                                                                                                                                            |  |
-| ATG     | TAC       | Start while loop                                                                                                                                                   |  |
-| CTG     | GAC       | End while loop                                                                                                                                                     |  |
-| ATT     | TAA       | Swap S1 and S2 top values.                                                                                                                                         |  |
-| CTT     | GAA       | Copy top of S1 and push that value back onto S1. Without this, some things become very difficult/impossible (eg, how do you retain a number after an operation?) ) |  |
+| Primary | Redundant | ExplanationDescription                                                                                                                                                        |  |
+| ------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | - |
+| AAA     | TTT       | Function name declarator. Function name is what appears between this tag. You can use either for the start or for the end.                                                    |  |
+| CAA     | GTT       | Function end. Function name appears between these 2 tags. Declares the end of that function and is an implicit return statement.                                              |  |
+| AAC     | TTG       | Prints numerical value stored at S1[0].                                                                                                                                       |  |
+| CAC     | GTG       | Prints ascii char from value stored at S1[0].                                                                                                                                 |  |
+| AAG     | TTC       | Call function with name between this tag. Can use either 'AAG' or 'TTC' for start/end.                                                                                        |  |
+| CAG     | GTA       | Return from function. Different from function end opcode: this is used to leave function prematurely. Function name appears between the two instances.                        |  |
+| AAT     | TTA       | Push value onto S1. Value is predetermined length (see data types).                                                                                                           |  |
+| CAT     | GTA       | Pop S1. Interpreted as delete from that stack as opposed to pop and use (so C++ stack style pop as opposed to another language))                                              |  |
+| ACA     | TGT       | Push top of S1 onto S2 then pop S1. Basically, move S1 to S2                                                                                                                  |  |
+| CCA     | GGT       | Push top of S2 onto S1 then pop S2. Basically, move S2 to S1                                                                                                                 |  |
+| ACC     | TGG       | Add top 2 values of S1 and store result in S1. Follows Postfix notation                                                                                                       |  |
+| CCC     | GGG       | Sub top 2 values of S1 and store result in S1. Follows Postfix notation                                                                                                      |  |
+| ACG     | TGC       | Mult top 2 values of S1.                                                                                                                                                      |  |
+| CCG     | GGC       | Divide top 2 values of S1. Pushes remainder onto S2!! (Number that is popped first is dividend, second number is divisor )                                                   |  |
+| ACT     | TGA       | Root operation. S[0] to the root of S[1]))                                                                                                                                    |  |
+| CCT     | GGA       | Pow (S[0] ^ S[1]) and push result to S1                                                                                                                                       |  |
+| AGA     | TCT       | Start if statement block                                                                                                                                                      |  |
+| CGA     | GCT       | End if statement block                                                                                                                                                        |  |
+| AGC     | TCG       | Else if                                                                                                                                                                       |  |
+| CGC     | GCG       | Else                                                                                                                                                                          |  |
+| AGG     | TCC       | Equals S1 (doesn't remove). Treats both items as numbers.                                                                                                                     |  |
+| CGG     | GCC       | Check if S1 is empty. Allows for more convenient operations (TODO: elaborate with an example)                                                                                 |  |
+| AGT     | TCA       | Less than                                                                                                                                                                     |  |
+| CGT     | GCA       | Greater than                                                                                                                                                                  |  |
+| ATA     | TAT       | And                                                                                                                                                                           |  |
+| CTA     | GAT       | Or                                                                                                                                                                            |  |
+| ATC     | TAG       | Not                                                                                                                                                                           |  |
+| CTC     | GAG       | Push user input onto S1. If input is an integer within the range of the program, it will push a single int onto s1 otherwise it will push the ascii code of each char onto s1 |  |
+| ATG     | TAC       | Start while loop                                                                                                                                                              |  |
+| CTG     | GAC       | End while loop                                                                                                                                                                |  |
+| ATT     | TAA       | Swap S1 and S2 top values.                                                                                                                                                    |  |
+| CTT     | GAA       | Copy top of S1 and push that value back onto S1. Without this, some things become very difficult/impossible (eg, how do you retain a number after an operation?) )            |  |
 
 ## Tips
 
@@ -218,6 +226,9 @@ VScode highighter.
 ## Things to test
 
 * loops and ifs with empty bodys
+* if statements with duplicate end if tags
+* if statements with duplicate else (make sure else matches to correct if statement)
+* Reciprocol code does the same thing
 
 ## Things I have learned
 
@@ -247,3 +258,5 @@ Shift reduce conflict means that we have ambiguity: we could either reduce to a 
 * Requiring function names to be defined before use makes for easier implementation but makes it more tedious to write programs in the language, so it is something I wanted to avoid.
 * Using stack based language model and Postfix notation is great if you don't want to use brackets, but in a sense my function definition tags are glorified brackets in a way
 * What is the remainder for a root operation anyway?? Is it useful in general to know this in the same way that it is useful to know remainder for division? Doesn't seem like it
+
+For division, the remainder is easy to relate back to the input arguments since it is the fraction of the divisor that fits into the remaining integer amount of the dividend (if I have those terms right). In other words, the fractional part of the answer from a division can easily be separated from the integer part. The same cannot be said for roots: in each iteration of multiplication the fractional component (<1) MUST be incorporated into the equation. Just using it by itself (eg, raising it to the same power) is not the same as when you multiply the remainder/fractional part of your answer from division. Never really thought about this before and it is hard to put into words, so Ill have to expand on this another time.

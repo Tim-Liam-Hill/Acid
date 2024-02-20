@@ -10,6 +10,8 @@ import math
 #Best keep it easily accessible and NOT duplicated 
 #names are all lowercase since they correspond to terminals in the CFG which I made all 
 #lowercase to better distinguish from non-terminals
+#convenient thing about this: if I decide to swap opcode meanings around, I don't need to change the interpreter
+#since it deals with labels instead of opcodes 
 CODON_OPCODES = {
     "AAA":  ["funcstart1", "funcname", "funcstart1"], 
     "TTT":  ["funcstart1", "funcname", "funcstart1"], 
@@ -117,6 +119,53 @@ going to do intense testing then sure, but for my purposes this is enough.
 class AcidException(Exception): 
     def __init__(self, message):
         super().__init__(message) 
+
+#Making this a separate class in case I want to change the number system in future. Then I can use dependency
+#Injection in the interpreter (I heard dependency injection is all the rage at the moment)
+class AcidNumber:
+    BIN_MAPPING = {"00":"A", "01":"C", "10":"G", "11":"T"}
+    ACID_MAPPING = {"A":"00", "C":"01", "G":"10", "T":"11"}
+
+    def __init__(self, numlength=15):
+        self.ACID_NUM_LENGTH = numlength
+        self.ACID_NUM_MAX = 4**(numlength-1) -1 #maximum value for any number if we allow for 15 codon long numbers (first codon is sign codon)
+        self.ACID_NUM_MIN = -1 * (self.ACID_NUM_MAX)
+
+    def intToAcid(self, i): #probably not needed, copied over from util fil
+        ans = ""
+        if(i<0):
+            lead = "C" #TODO: maybe don't hardcode this
+        else: lead = "A" #or this 
+
+        temp = format(abs(i), 'b')
+        temp = ("0" * (len(temp) % 2)) + temp #The fact that this is valid python code is wild to me
+        
+        for i in range(0,len(temp),2):  #is there a cool one-liner for this? 
+            ans = ans + AcidNumber.BIN_MAPPING[temp[i:i+2]]
+        
+        return lead + ("A" * (14 - len(ans))) + ans
+
+    def acidToInt(self, num): 
+        if(len(num) != self.ACID_NUM_LENGTH): #this exception should never be thrown unless somehow an AST is provided to the interpreter that didn't come from the Parser
+            raise AcidException("Acid number does not consist of the correct number of codons")
+
+        #the method I am using here is just for convenience.
+        #I am basically converting each symbol to it's binary equivalent and going to integer from there
+        if(num[0] == "A" or num[0] == "C"):
+            multiplier = -1 if num[0] == "C" else 1
+
+            ans = ""
+            for i in range(1,len(num)):
+                ans = ans + AcidNumber.ACID_MAPPING[num[i]]
+            return int(ans,2)*multiplier
+
+        else: #handles 'reciprocol' numbers TODO: more testing 
+            multiplier = -1 if num[0] == "G" else 1
+
+            ans = ""
+            for i in range(1,len(num)):
+                ans = ans + AcidNumber.ACID_MAPPING[num[i]]
+            return (self.ACID_NUM_MAX - int(ans,2))*multiplier
 
 class Token: #Tokens that are stored by Nodes of the AST
 
@@ -345,7 +394,7 @@ class Parser: #Handles Syntax analysis and builds an AST
                 case SLR_ACTIONS.ACCEPT.value:
                     return stack[1]
 
-                case default:
+                case _:
                     err = "No matching action in SLR table with name " + str(SLR_TABLE[state][token.label][0])
                     err += "SLR table is malformed"
                     raise AcidException(err)
@@ -358,7 +407,7 @@ class Interpreter:
     FUNC_START_LABEL = "FUNCSTART"
     FUNC_END_LABEL = "FUNCEND"
 
-    def __init__(self):
+    def __init__(self, acid_number):
         """
         An explanation is required for the below 2 variables.
         I considered creating a separate class for the symbol table but this seems like overkill. I only
@@ -380,6 +429,7 @@ class Interpreter:
         """
         self.func_mapping = {} 
         self.scope = [{}]
+        self.acid_number = acid_number
         
         
     #It would be easiest to do this with recursion but I think it would be fun to try using a stack
@@ -394,7 +444,7 @@ class Interpreter:
     we can just check that the next funcend has the same name as the function we are describing, if it doesn't
     then we don't have function name tags in the correct order 
     """
-    #the last element on the scope table becomes our mapping table for future use.
+    #the last element left on the scope table becomes our mapping table for future use.
     def createFuncMapping(self, AST):
         logging.debug("Building the symbol table before running the program")
         stack = [AST] #the stack for symbols, not to be confused with the stacks the user code operates on
@@ -432,6 +482,8 @@ class Interpreter:
         self.func_mapping = self.scope.pop() #empties the scope
         logging.debug("Function Symbol table complete: " + str(self.func_mapping))
 
+    #TODO: introduce modes of running that control whether or not we print numbers as ACID base 4 numbers 
+    #or regular numbers 
     def run(self, AST): 
         self.createFuncMapping(AST) #TODO: we will only be pushing references onto the stack each time we enter a scope, so that shouldn't be
                                     #too bad performance wise right?? May need to check this and reimplement if that isn't the case
@@ -441,6 +493,8 @@ class Interpreter:
 
         while(len(stack) != 0):
             node = stack.pop()
+            logging.debug("s1: " + str(s1))
+            logging.debug("s2 reversed: " + str(s2.reverse()))
             """
             The only symbols we need to bother with implementing functions for are:
             IF (which can handle the sub elifs and such)
@@ -460,27 +514,27 @@ class Interpreter:
                     pass
                 case "STACK":
                     self.stack(s1,s2,node)
-                    
                 case "MATH":
                     self.math(s1,s2,node)
-                     
                 case "IO":
-                    break 
+                    self.io(s1,node)
                 case "CALLFUNC":
                     pass
                 case "FUNC":
                     pass
-                case default: #just add the children of the current node onto the stack 
+                case _: #just add the children of the current node onto the stack 
                     stack += node.children[::-1]
                     
-
+    #any number that is on the stack will be not in Acid base 4 form, but will be normal integers
+    #any handling of numbers 
     def math(self, s1, s2, node):
 
+        logging.debug("Performing math operation: " + node.children[0].token.label)
         #all of the below operations require 2<= elements on s1, so we can do the 
         #error check once before the switch case
         if(len(s1) < 2):
             err = "Attempting to perform action '" + node.children[0].token.label + "' on s1 which "
-            err += "only has " + str(len(s1))+ "<2 elements."
+            err += "only has length " + str(len(s1))
             raise AcidException(err)
         
         num1 = s1.pop()
@@ -520,15 +574,62 @@ class Interpreter:
                 raise AcidException(err) 
 
     def stack(self, s1, s2, node):
-        pass
+        logging.debug("Performing stack operation: " + node.children[0].token.label)
+        
+        match node.children[0].token.label:
+
+            case "push":
+                s1.append(self.acid_number.acidToInt(node.children[1].token.value))
+            case "pop":
+                if(len(s1) <= 0):
+                    raise AcidException("Cannot pop element from empty stack")
+                s1.pop()
+            case "moves1s2":
+                 if(len(s1) <= 0):
+                    raise AcidException("Cannot move element from s1 to s2: s1 is empty")
+                 s2.append(s1.pop())
+            case "moves2s1":
+                if(len(s2) <= 0):
+                    raise AcidException("Cannot pop element from empty stack")
+                s1.append(s2.pop())
+            case "copys1":
+                if(len(s1) <= 0):
+                    raise AcidException("Cannot copy element from s1: stack is empty")
+                s2.append(s1[len(s1)-1])
+            case "swap":
+                if(len(s1) <= 0 or len(s2) <=0):
+                    raise AcidException("Cannot swap elements of stacks when one stack is empty")
+                temp = s1.pop()
+                s1.append(s2.pop())
+                s2.append(temp)
+            case _:
+                err = "Found symbol '" + node.children[0].token.label + "' which is not a valid symbol for stack operations"
+                raise AcidException(err) 
 
     #TODO: allow for output to be sent somewhere besides console? would help for testing
-    def io():
-        pass 
+    def io(self, s1, node):
+        logging.debug("Performing IO operation: " + node.children[0].token.label)
+        match node.children[0].token.label:
+            case "userin":
+                i = input("")
+                try:
+                    num = int(i)
+                    if(num > self.acid_number.ACID_NUM_MAX or num < self.acid_number.ACID_NUM_MIN):
+                        raise ValueError("")
 
-
-
-
+                    logging.debug("Userinput interpreted as integer with value " + str(num))
+                    s1.append(num)
+                except ValueError: 
+                    logging.debug("Userinput interpreted as string, each char will have ascii value pushed on stack")
+                    for char in i:
+                        s1.append(ord(char))
+            case "printnum":
+                pass
+            case "printchar":
+                pass
+            case _:
+                err = "Found symbol '" + node.children[0].token.label + "' which is not a valid symbol for sIO operations"
+                raise AcidException(err) 
 
 
 
@@ -561,7 +662,7 @@ if __name__=="__main__":
     ast = parser.run(tokens)
     ast.print()
     print("-"*20)
-    interpreter = Interpreter()
+    interpreter = Interpreter(AcidNumber(15))
     interpreter.run(ast)
     
 
