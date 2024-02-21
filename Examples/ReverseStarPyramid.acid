@@ -1,11 +1,11 @@
 given a number N, print N many rows of "*" in a pyramid shape 
-yhe number of "*" on a single row is index of row + 1 (starting count from 0)
+the number of "*" on a single row is index of row + 1 (starting count from 0)
 so if N = 3 it will look like 
 *
 **
 ***
 
-CTC #Push user input onto S1 
+CTC #push user input onto S1 
 
 AAT AAA AAA AAA AAA AAA # push 0 onto stack 
 ATG ATC AGG # while not top elements S1 equal 

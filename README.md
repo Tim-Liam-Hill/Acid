@@ -36,13 +36,13 @@ TODO: Incorporate final CFG definition into the code for better error checking. 
 
 TODO: Mascot is a mushroom.
 
-TODO: decide on exact root functionality. 
+TODO: decide on exact root functionality.
 
 TODO: decide on what extra funny run modes to add and implement (eg: visualizer mode, acid num mode). Do we want to allow for REPL?
 
 TODO: color tokens in VSCode?? In General color tokens (maybe in visualizer)
 
-TODO: do we need to 'isempty' functions? Probably not but should review 
+TODO: do we need to 'isempty' functions? Probably not but should review
 
 TODO: utility that inverts code
 
@@ -120,6 +120,10 @@ TODO: test the recipricol with negative numbers. Should work but you never know.
 * Actually no, there is no explicit true and false
 * You have to explicitly compare two different values.
 
+You will notice there are no 'and' or 'or' operators, this is intentional. Both can be simulated using either nested if loops (for and) or elif (for or). Since the base comparison operators ('lessthan' 'greaterthan' and 'equals') don't modify the stack, it doesn't make sense to have include 'and' and 'or'.
+
+Alternatively, you can use a function to evaluate complex conditions and call this before loops/if statements. (TODO: example).
+
 ## Comments
 
 * Any non A C G T characters interpreted as comments
@@ -148,6 +152,36 @@ ATA AGA ATA is (even though it contains AAG from [2,4] the check is only at the 
 
 Create util program that tells you if function name is problematic or not. Or maybe even generates palindromic funtion names of length n codons.
 
+##### Replacing bools
+
+The opcodes for 'and' and 'or' are now free for something else, but I am not sure what exactly I want to replace them with. Some things that come to mind:
+
+* size of stacks
+
+Problem is, we need to store these results on the stack so to get len(s1) we actually add to that length. In any case, the user can keep track of this and would still need to keep track of their own lengths anyway 
+
+* some sort of reversal
+
+I don't like the idea of just directly reversing the stacks, it seems a bit too high level for what the language actually wants. Maybe something smaller like 'take top of s1 and move it to back'? Still, we want something that has use (this has use in reversing strings but still).
+
+A nice idea for this could be to swap first and last elements of s1, this is convenient for palindrome checking. Also useful for sorting lists. What is the reciprocol of this though?
+
+Maybe we could have a generalized version (swap top of s1 based on an offset?). Allows for some sort of random access I suppose
+
+* push marker and check if marker?
+
+this could have some uses with respect to a user keeping track of strings without having to know string length, but it introduces complexity in all other operations (everything will need to have a check to see if it is operating on a marker and handle accordingly). Again, this is something the end user can implement in other ways. 
+
+* increment and decrement
+
+Nice to have but not necessary. I want opcodes that significantly open up more possibilities/make bigger things less tedious. 
+
+* check if s2 empty
+
+matches the check if s1 is empty operation we currently have
+
+Maybe lets get back to this once I have written some more sample programs.
+
 | Primary | Redundant | ExplanationDescription                                                                                                                                                        |  |
 | ------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | - |
 | AAA     | TTT       | Function name declarator. Function name is what appears between this tag. You can use either for the start or for the end.                                                    |  |
@@ -164,7 +198,7 @@ Create util program that tells you if function name is problematic or not. Or ma
 | CCC     | GGG       | Sub top 2 values of S1 and store result in S1. Follows Postfix notation                                                                                                      |  |
 | ACG     | TGC       | Mult top 2 values of S1.                                                                                                                                                      |  |
 | CCG     | GGC       | Divide top 2 values of S1. Pushes remainder onto S2!! (Number that is popped first is dividend, second number is divisor )                                                   |  |
-| ACT     | TGA       | Root operation. S[0] to the root of S[1]))                                                                                                                                    |  |
+| ACT     | TGA       | Root operation. S[0] to the root of S[1])). Pushes int diff onto S2 (todo: elaborate))                                                                                        |  |
 | CCT     | GGA       | Pow (S[0] ^ S[1]) and push result to S1                                                                                                                                       |  |
 | AGA     | TCT       | Start if statement block                                                                                                                                                      |  |
 | CGA     | GCT       | End if statement block                                                                                                                                                        |  |
@@ -174,8 +208,8 @@ Create util program that tells you if function name is problematic or not. Or ma
 | CGG     | GCC       | Check if S1 is empty. Allows for more convenient operations (TODO: elaborate with an example)                                                                                 |  |
 | AGT     | TCA       | Less than                                                                                                                                                                     |  |
 | CGT     | GCA       | Greater than                                                                                                                                                                  |  |
-| ATA     | TAT       | And                                                                                                                                                                           |  |
-| CTA     | GAT       | Or                                                                                                                                                                            |  |
+| ATA     | TAT       | ~~And~~ Len(s1) Maybe make this a shift to front s1? A reversal of sorts? TODO: decide                                                                                      |  |
+| CTA     | GAT       | ~~Or~~ TODO: decide on what this and the above opcodes should do.                                                                                                           |  |
 | ATC     | TAG       | Not                                                                                                                                                                           |  |
 | CTC     | GAG       | Push user input onto S1. If input is an integer within the range of the program, it will push a single int onto s1 otherwise it will push the ascii code of each char onto s1 |  |
 | ATG     | TAC       | Start while loop                                                                                                                                                              |  |
@@ -229,6 +263,7 @@ VScode highighter.
 * if statements with duplicate end if tags
 * if statements with duplicate else (make sure else matches to correct if statement)
 * Reciprocol code does the same thing
+* If users input funny chars, can this break the input function? (by funny chars I mean non-standard ascii characters)
 
 ## Things I have learned
 

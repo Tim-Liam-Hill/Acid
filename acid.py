@@ -8,9 +8,9 @@ import math
 
 #Declaring as global since it is the definition of what symbols stand for
 #Best keep it easily accessible and NOT duplicated 
-#names are all lowercase since they correspond to terminals in the CFG which I made all 
+#names are all lowercase since they correspond to terminals in the CFG in which are all
 #lowercase to better distinguish from non-terminals
-#convenient thing about this: if I decide to swap opcode meanings around, I don't need to change the interpreter
+#convenient thing about this variable: if I decide to swap opcode meanings around, I don't need to change the interpreter
 #since it deals with labels instead of opcodes 
 CODON_OPCODES = {
     "AAA":  ["funcstart1", "funcname", "funcstart1"], 
@@ -366,7 +366,7 @@ class Parser: #Handles Syntax analysis and builds an AST
                     stack.append(SLR_TABLE[state][token.label][1]) #pushing the next state to follow
                     tokens.pop(0)
 
-                case SLR_ACTIONS.REDUCE.value: 
+                case SLR_ACTIONS.REDUCE.value: #TODO: clean up into a separate function, will make things look better
                     logging.debug("Reducing for state " + str(state) + " and token " + str(token) + " with production " + SLR_TABLE[state][token.label][1][0] + ":=" +SLR_TABLE[state][token.label][1][1] )
                     expected_elements = SLR_TABLE[state][token.label][1][1].split(CFG_RHS_SEPARATOR)
                     prod_length = len(expected_elements) if expected_elements[0] != '' else 0 #a check for empty productions (eg: R:=)
@@ -507,7 +507,8 @@ class Interpreter:
             """
             match node.token.label: 
                 case "IF":
-                    pass
+                    self.If(s1, stack, node) #feels strange to pass in ASTNode stack into this function but it keeps the switch case cleaner
+                                             #and the logic for if statements requires possible alteration of the stack
                 case "LOOP":
                     #basically, check bool condition and if true push loop node back onto stack, followed by pushing loopbody
                 
@@ -596,7 +597,7 @@ class Interpreter:
                 if(len(s1) <= 0):
                     raise AcidException("Cannot copy element from s1: stack is empty")
                 s2.append(s1[len(s1)-1])
-            case "swap":
+            case "swaps1s2":
                 if(len(s1) <= 0 or len(s2) <=0):
                     raise AcidException("Cannot swap elements of stacks when one stack is empty")
                 temp = s1.pop()
@@ -624,14 +625,32 @@ class Interpreter:
                     for char in i:
                         s1.append(ord(char))
             case "printnum":
-                pass
+                print(s1[len(s1)-1])
+                
             case "printchar":
-                pass
+                print(chr(s1[len(s1)-1])) #TODO: do we need error checking for the chr function?
             case _:
                 err = "Found symbol '" + node.children[0].token.label + "' which is not a valid symbol for sIO operations"
                 raise AcidException(err) 
 
+    def If(self, s1, stack, node):
+        pass 
 
+    #evaluates a boolean expression to return true or false 
+    def boolean(self, s1, node):
+        #Case for what boolean expression we are dealing with is determined by num children of the boolean node
+
+        match len(node.children):
+            case 1: #can only be a 'BOOLEAN:=BOOLEAN1' statement
+                match node.children[0].children[0].token.label: #Boolean->Boolean1->token->label
+                    case "equals":
+                        return s1[]
+            case 2: #can only be a 'not BOOLEAN' statement
+                pass 
+            case 3: #can only be an 'and' or an 'or' statement 
+                pass 
+            case _: 
+                raise AcidException("Boolean expression has invalid form") #TODO: elaborate on this error message
 
 class Acid: 
 
