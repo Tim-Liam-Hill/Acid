@@ -19,6 +19,8 @@ TODO: *~~Can you use return outside of a function?~~  No (at least, you shouldn'
 
 TODO: less than 500 lines of code
 
+TODO: release CFG once finalized (and the work is more polished)
+
 TODO: decide if have arg to disable palindrome function names
 
 TODO: explain why my test cases are in files.
@@ -30,7 +32,7 @@ TODO: mention drawing the DFA and such, then go make a pull request to the other
 TODO: ~~write my own NFA to DFA converter. Reeeee.
 Or I can borrow someone elses?~~  Have done this and have made it create an SLR table as well
 
-TODO: expand on SLR table to allow for better error logging. Best way I can think of to do this is to write intentionally incorrect programs, see the states that errors are thrown on and use this to learn how best to add error conditions to SLR table.
+TODO: expand on SLR table to allow for better error logging. Best way I can think of to do this is to write intentionally incorrect programs, see the states that errors are thrown on and use this to learn how best to add error conditions to SLR table. Otherwise, the CFG itself can encode error messages I suppose (via non-terminals that represent specific cases of syntactic errors. I believe this is how the Python implementation does it, see [here](https://github.com/python/cpython/blob/main/Grammar/python.gram#L1187) )
 
 TODO: Incorporate final CFG definition into the code for better error checking. Or is this even necessary?
 
@@ -46,7 +48,7 @@ TODO: do we need to 'isempty' functions? Probably not but should review
 
 TODO: utility that inverts code
 
-TODO: swap some opcodes functionalities so that currently related opcodes are closer together 
+TODO: swap some opcodes functionalities so that currently related opcodes are closer together
 
 #### REQUIRES PYTHON 3.10+ (due to switch case)
 
@@ -266,6 +268,7 @@ VScode highighter.
 * if statements with duplicate else (make sure else matches to correct if statement)
 * Reciprocol code does the same thing
 * If users input funny chars, can this break the input function? (by funny chars I mean non-standard ascii characters)
+* Run multiple programs/ASTs one after the other and verify that they produce the correct input
 
 ## Things I have learned
 

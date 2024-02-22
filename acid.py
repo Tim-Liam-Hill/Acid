@@ -96,7 +96,7 @@ class SLR_ACTIONS(Enum):
 RECIPRICOLS = {"A":"T", "T":"A", "C":"G","G":"C"}
 
 SLR_TABLE = json.load(open("SLR_TABLE.json"))
-SLR_START_STATE = "0-100-102-104-106-108-11-110-112-114-116-118-13-15-17-19-2-21-23-41-5-6-65-7-77-85-88-9-90-92-94-96-98" #TODO: find a more elegant way to record this in the SLR_TABLE json file
+SLR_START_STATE = "0-100-102-104-106-108-11-110-112-13-15-17-19-2-21-23-41-5-59-6-7-71-79-82-84-86-88-9-90-92-94-96-98" #TODO: find a more elegant way to record this in the SLR_TABLE json file
 SLR_END_SYMBOL = "$$$" #TODO: also encode this in the SLR_TABLE.json
 CFG_RHS_SEPARATOR = " " #TODO: also encode this into SLR_TABLE.json
 #basically just make SLR_TABLE.json contain itself inside another json object with values for the above. Will
@@ -334,7 +334,8 @@ class Scanner: #handles Lexical Analysis
 
         return nodes, k
 
-
+#TODO: consider 'pruning the ast as we create it. It isn't strictly necessary but may make the resulting AST easier to read (and will reduce)
+#its size somewhat). Doing this would require altering the parser (best to finish it first)
 class Parser: #Handles Syntax analysis and builds an AST
 
     def __init__(self):
@@ -487,6 +488,7 @@ class Interpreter:
     def run(self, AST): 
         self.createFuncMapping(AST) #TODO: we will only be pushing references onto the stack each time we enter a scope, so that shouldn't be
                                     #too bad performance wise right?? May need to check this and reimplement if that isn't the case
+        self.scope = [self.scope[0]] #reset the scope table tracker in case this function is called multiple times 
         stack = [ast]
         s1 = []
         s2 = []
@@ -511,8 +513,7 @@ class Interpreter:
                                              #and the logic for if statements requires possible alteration of the stack
                 case "LOOP":
                     #basically, check bool condition and if true push loop node back onto stack, followed by pushing loopbody
-                
-                    pass
+                    self.loop(s1, s2, stack, node)
                 case "STACK":
                     self.stack(s1,s2,node)
                 case "MATH":
@@ -520,9 +521,11 @@ class Interpreter:
                 case "IO":
                     self.io(s1,node)
                 case "CALLFUNC":
-                    pass
+                    self.callFunc(stack, node)
+                case "FUNCBODY":
+                    self.funcBody(stack,node)
                 case "FUNC":
-                    pass
+                    pass #ignore FUNC nodes
                 case _: #just add the children of the current node onto the stack 
                     stack += node.children[::-1]
                     
@@ -617,6 +620,7 @@ class Interpreter:
                 raise AcidException(err) 
 
     #TODO: allow for output to be sent somewhere besides console? would help for testing
+    #maybe allow for overriding sys.stdout
     def io(self, s1, node):
         logging.debug("Performing IO operation: " + node.children[0].token.label)
         match node.children[0].token.label:
@@ -642,8 +646,44 @@ class Interpreter:
                 err = "Found symbol '" + node.children[0].token.label + "' which is not a valid symbol for sIO operations"
                 raise AcidException(err) 
 
-    def If(self, s1, stack, node):
-        pass 
+    def If(self, s1, s2, stack, node):
+        logging.debug("Evaluating If statement")
+        ifbody = node.children[2]
+        if(self.boolean(s1,s2,stack, node.children[1])):
+            stack.push(ifbody.children[0]) #push the code to be executed onto stack in event of true evaluation
+            return #in my opinion, preventing indenting the rest of the below code with an 'else' statement leads to code
+                   #that is easier to read visually
+        
+        match len(ifbody.children): #if bool is false, action we take is determined by structure of trailing 'else-if's and 'else' 
+            case 2: #check if the else is 'empty' (ie: no else) 
+                if(len(ifbody.children[1]).children != 0):
+                    stack.push(ifbody.children[1].children[1])
+            case 4: 
+                self.elseIf(s1,s2,stack,ifbody) #easier to handle this case with a recursive function
+            case _:
+                raise AcidException("Malformed Boolean expresssion: body of if-statement must have 2 or 4 child nodes. Likely not an issue with input program")
+
+    def elseIf(self, s1, s2, stack, node):
+        logging.debug("Evaluating else-if statement")
+        ifbody = node.children[3]
+        if(self.boolean(s1,s2,stack, node.children[2])):
+            stack.push(ifbody.children[3]) 
+            return 
+        
+        match len(ifbody.children): 
+            case 2: 
+                if(len(ifbody.children[1]).children != 0):
+                    stack.push(ifbody.children[1].children[1])
+            case 4: 
+                self.elseIf(s1,s2,stack,ifbody) #easier to handle this case with a recursive function
+            case _:
+                raise AcidException("Malformed Boolean expresssion: body of if-statement must have 2 or 4 child nodes. Likely not an issue with input program")
+
+    def loop(self,s1,s2,stack, node):
+        logging.debug("Evaluating while loop")
+        if(self.boolean(s1,s2,node.children[1])):
+            stack.push(node) 
+            stack.push(node.children[2])
 
     #evaluates a boolean expression to return true or false 
     def boolean(self, s1, s2, node):
@@ -667,10 +707,38 @@ class Interpreter:
                 return len(s1) == 0
             case "isemptys2":
                 return len(s2) == 0
+            case "not":
+                return not self.boolean(s1,s2,node.children[2])
             case _: 
                 err = "Boolean expression has invalid keyword: " + node.children[0].token.label
                 err += "\nThis is likely an issue with the created AST and not with the Acid code"
                 raise AcidException(err)
+
+    def callFunc(self, stack, node):
+        funcname = node.children[1].token.label
+        logging.debug("Calling function with name '" + funcname + "'")
+        #first, check if the funcname is in one of the scopes we have entered 
+        
+        for scope in self.scopes[::-1]:
+            if(funcname in scope):
+                stack.append(scope[funcname]["funcbody"]):
+                self.scope.append(scope[funcname])
+                return 
+        err = "Cannot call function with name'" + funcname + "', this name is not defined in any current scope"
+        raise AcidException(err)
+
+    def funcBody(self, stack, node):
+
+        match len(node.children):
+            case 0: #implicit return statement
+                self.scope.pop()
+            case 2:
+                if(node.children[0].token.label == "return"):
+                    self.scope.pop()
+                    return 
+                stack += node.children
+            case _:
+                raise AcidException("Invalid function body")
 
 class Acid: 
 
