@@ -507,7 +507,7 @@ class Interpreter:
             """
             match node.token.label: 
                 case "IF":
-                    self.If(s1, stack, node) #feels strange to pass in ASTNode stack into this function but it keeps the switch case cleaner
+                    self.If(s1, s2, stack, node) #feels strange to pass in ASTNode stack into this function but it keeps the switch case cleaner
                                              #and the logic for if statements requires possible alteration of the stack
                 case "LOOP":
                     #basically, check bool condition and if true push loop node back onto stack, followed by pushing loopbody
@@ -574,11 +574,13 @@ class Interpreter:
                 err = "Found symbol '" + node.children[0].token.label + "' which is not a valid symbol for mathematical operations"
                 raise AcidException(err) 
 
+    #TODO: check if there are more efficient operations to use when manipulating stack (eg: pop vs some other)
+    #method. Granted, performance isn't really the goal but it could still be interesting to look into
     def stack(self, s1, s2, node):
         logging.debug("Performing stack operation: " + node.children[0].token.label)
         
         match node.children[0].token.label:
-
+            
             case "push":
                 s1.append(self.acid_number.acidToInt(node.children[1].token.value))
             case "pop":
@@ -603,6 +605,13 @@ class Interpreter:
                 temp = s1.pop()
                 s1.append(s2.pop())
                 s2.append(temp)
+            case "swapfirstlasts1":
+                if(len(s1) < 1):
+                    raise AcidException("Cannot swap first and last element of s1 when s1 is empty")
+                if(len(s1) != 1): #only swap if it would change the stack
+                    temp = s1[len(s1)-1]
+                    s1[len(s1)-1] = s1[0]
+                    s1[0] = temp
             case _:
                 err = "Found symbol '" + node.children[0].token.label + "' which is not a valid symbol for stack operations"
                 raise AcidException(err) 
@@ -637,20 +646,31 @@ class Interpreter:
         pass 
 
     #evaluates a boolean expression to return true or false 
-    def boolean(self, s1, node):
+    def boolean(self, s1, s2, node):
         #Case for what boolean expression we are dealing with is determined by num children of the boolean node
+        logging.debug("Evaluating Boolean expression")
 
-        match len(node.children):
-            case 1: #can only be a 'BOOLEAN:=BOOLEAN1' statement
-                match node.children[0].children[0].token.label: #Boolean->Boolean1->token->label
-                    case "equals":
-                        return s1[]
-            case 2: #can only be a 'not BOOLEAN' statement
-                pass 
-            case 3: #can only be an 'and' or an 'or' statement 
-                pass 
+        match node.children[0].token.label: 
+            case "equals":
+                if(len(s1) <2):
+                    raise AcidException("Cannot compare top 2 elements of s1 when s1 has less than 2 elements")
+                return s1[len(s1)-1] == s1[len(s1)-2]
+            case "lessthan":
+                if(len(s1) <2):
+                    raise AcidException("Cannot compare top 2 elements of s1 when s1 has less than 2 elements")
+                return s1[len(s1)-2] < s1[len(s1)-1]
+            case "greaterthan":
+                if(len(s1) <2):
+                    raise AcidException("Cannot compare top 2 elements of s1 when s1 has less than 2 elements")
+                return s1[len(s1)-2] > s1[len(s1)-1]
+            case "isemptys1":
+                return len(s1) == 0
+            case "isemptys2":
+                return len(s2) == 0
             case _: 
-                raise AcidException("Boolean expression has invalid form") #TODO: elaborate on this error message
+                err = "Boolean expression has invalid keyword: " + node.children[0].token.label
+                err += "\nThis is likely an issue with the created AST and not with the Acid code"
+                raise AcidException(err)
 
 class Acid: 
 

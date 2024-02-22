@@ -46,6 +46,8 @@ TODO: do we need to 'isempty' functions? Probably not but should review
 
 TODO: utility that inverts code
 
+TODO: swap some opcodes functionalities so that currently related opcodes are closer together 
+
 #### REQUIRES PYTHON 3.10+ (due to switch case)
 
 ## Properties
@@ -158,7 +160,7 @@ The opcodes for 'and' and 'or' are now free for something else, but I am not sur
 
 * size of stacks
 
-Problem is, we need to store these results on the stack so to get len(s1) we actually add to that length. In any case, the user can keep track of this and would still need to keep track of their own lengths anyway 
+Problem is, we need to store these results on the stack so to get len(s1) we actually add to that length. In any case, the user can keep track of this and would still need to keep track of their own lengths anyway
 
 * some sort of reversal
 
@@ -170,11 +172,11 @@ Maybe we could have a generalized version (swap top of s1 based on an offset?). 
 
 * push marker and check if marker?
 
-this could have some uses with respect to a user keeping track of strings without having to know string length, but it introduces complexity in all other operations (everything will need to have a check to see if it is operating on a marker and handle accordingly). Again, this is something the end user can implement in other ways. 
+this could have some uses with respect to a user keeping track of strings without having to know string length, but it introduces complexity in all other operations (everything will need to have a check to see if it is operating on a marker and handle accordingly). Again, this is something the end user can implement in other ways.
 
 * increment and decrement
 
-Nice to have but not necessary. I want opcodes that significantly open up more possibilities/make bigger things less tedious. 
+Nice to have but not necessary. I want opcodes that significantly open up more possibilities/make bigger things less tedious.
 
 * check if s2 empty
 
@@ -205,11 +207,11 @@ Maybe lets get back to this once I have written some more sample programs.
 | AGC     | TCG       | Else if                                                                                                                                                                       |  |
 | CGC     | GCG       | Else                                                                                                                                                                          |  |
 | AGG     | TCC       | Equals S1 (doesn't remove). Treats both items as numbers.                                                                                                                     |  |
-| CGG     | GCC       | Check if S1 is empty. Allows for more convenient operations (TODO: elaborate with an example)                                                                                 |  |
-| AGT     | TCA       | Less than                                                                                                                                                                     |  |
-| CGT     | GCA       | Greater than                                                                                                                                                                  |  |
-| ATA     | TAT       | ~~And~~ Len(s1) Maybe make this a shift to front s1? A reversal of sorts? TODO: decide                                                                                      |  |
-| CTA     | GAT       | ~~Or~~ TODO: decide on what this and the above opcodes should do.                                                                                                           |  |
+| CGG     | GCC       | Check if S1 is empty. IS a boolean returning function Allows for more convenient operations (TODO: elaborate with an example)                                                 |  |
+| AGT     | TCA       | Less than (is second last element s1 smaller than last element)                                                                                                               |  |
+| CGT     | GCA       | Greater than (is second last element s1 greater than last element)                                                                                                          |  |
+| ATA     | TAT       | Swap first and last elements of s1                                                                                                                                            |  |
+| CTA     | GAT       | Check if s2 empty. IS A BOOLEAN RETURNING FUNCTION                                                                                                                            |  |
 | ATC     | TAG       | Not                                                                                                                                                                           |  |
 | CTC     | GAG       | Push user input onto S1. If input is an integer within the range of the program, it will push a single int onto s1 otherwise it will push the ascii code of each char onto s1 |  |
 | ATG     | TAC       | Start while loop                                                                                                                                                              |  |
