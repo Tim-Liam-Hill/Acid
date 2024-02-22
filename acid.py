@@ -721,7 +721,7 @@ class Interpreter:
         
         for scope in self.scopes[::-1]:
             if(funcname in scope):
-                stack.append(scope[funcname]["funcbody"]):
+                stack.append(scope[funcname]["funcbody"])
                 self.scope.append(scope[funcname])
                 return 
         err = "Cannot call function with name'" + funcname + "', this name is not defined in any current scope"
