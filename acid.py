@@ -486,17 +486,21 @@ class Interpreter:
     #TODO: introduce modes of running that control whether or not we print numbers as ACID base 4 numbers 
     #or regular numbers 
     def run(self, AST): 
+        
         self.createFuncMapping(AST) #TODO: we will only be pushing references onto the stack each time we enter a scope, so that shouldn't be
                                     #too bad performance wise right?? May need to check this and reimplement if that isn't the case
-        self.scope = [self.scope[0]] #reset the scope table tracker in case this function is called multiple times 
+        self.scope = [self.func_mapping] #reset the scope table tracker in case this function is called multiple times 
         stack = [ast]
         s1 = []
         s2 = []
+        logging.debug("--- Interpreting input AST ---")
 
         while(len(stack) != 0):
-            node = stack.pop()
             logging.debug("s1: " + str(s1))
             logging.debug("s2 reversed: " + str(s2.reverse()))
+            logging.debug("stack: " + str(stack))
+            node = stack.pop()
+
             """
             The only symbols we need to bother with implementing functions for are:
             IF (which can handle the sub elifs and such)
@@ -527,6 +531,7 @@ class Interpreter:
                 case "FUNC":
                     pass #ignore FUNC nodes
                 case _: #just add the children of the current node onto the stack 
+                    logging.debug("Default case for node " + node.token.label +", adding its children to the stack")
                     stack += node.children[::-1]
                     
     #any number that is on the stack will be not in Acid base 4 form, but will be normal integers
@@ -649,15 +654,15 @@ class Interpreter:
     def If(self, s1, s2, stack, node):
         logging.debug("Evaluating If statement")
         ifbody = node.children[2]
-        if(self.boolean(s1,s2,stack, node.children[1])):
-            stack.push(ifbody.children[0]) #push the code to be executed onto stack in event of true evaluation
+        if(self.boolean(s1,s2,node.children[1])):
+            stack.append(ifbody.children[0]) #push the code to be executed onto stack in event of true evaluation
             return #in my opinion, preventing indenting the rest of the below code with an 'else' statement leads to code
                    #that is easier to read visually
         
         match len(ifbody.children): #if bool is false, action we take is determined by structure of trailing 'else-if's and 'else' 
             case 2: #check if the else is 'empty' (ie: no else) 
-                if(len(ifbody.children[1]).children != 0):
-                    stack.push(ifbody.children[1].children[1])
+                if(len(ifbody.children[1].children) != 0):
+                    stack.append(ifbody.children[1].children[1])
             case 4: 
                 self.elseIf(s1,s2,stack,ifbody) #easier to handle this case with a recursive function
             case _:
@@ -672,7 +677,7 @@ class Interpreter:
         
         match len(ifbody.children): 
             case 2: 
-                if(len(ifbody.children[1]).children != 0):
+                if(len(ifbody.children[1].children) != 0):
                     stack.push(ifbody.children[1].children[1])
             case 4: 
                 self.elseIf(s1,s2,stack,ifbody) #easier to handle this case with a recursive function
@@ -682,8 +687,8 @@ class Interpreter:
     def loop(self,s1,s2,stack, node):
         logging.debug("Evaluating while loop")
         if(self.boolean(s1,s2,node.children[1])):
-            stack.push(node) 
-            stack.push(node.children[2])
+            stack.append(node) 
+            stack.append(node.children[2])
 
     #evaluates a boolean expression to return true or false 
     def boolean(self, s1, s2, node):
@@ -708,18 +713,18 @@ class Interpreter:
             case "isemptys2":
                 return len(s2) == 0
             case "not":
-                return not self.boolean(s1,s2,node.children[2])
+                return not self.boolean(s1,s2,node.children[1])
             case _: 
                 err = "Boolean expression has invalid keyword: " + node.children[0].token.label
                 err += "\nThis is likely an issue with the created AST and not with the Acid code"
                 raise AcidException(err)
 
     def callFunc(self, stack, node):
-        funcname = node.children[1].token.label
+        funcname = node.children[1].token.value
         logging.debug("Calling function with name '" + funcname + "'")
         #first, check if the funcname is in one of the scopes we have entered 
         
-        for scope in self.scopes[::-1]:
+        for scope in self.scope[::-1]:
             if(funcname in scope):
                 stack.append(scope[funcname]["funcbody"])
                 self.scope.append(scope[funcname])
@@ -728,7 +733,7 @@ class Interpreter:
         raise AcidException(err)
 
     def funcBody(self, stack, node):
-
+        logging.debug("Evaluating code inside of a function's body")
         match len(node.children):
             case 0: #implicit return statement
                 self.scope.pop()
@@ -736,7 +741,7 @@ class Interpreter:
                 if(node.children[0].token.label == "return"):
                     self.scope.pop()
                     return 
-                stack += node.children
+                stack += node.children[::-1]
             case _:
                 raise AcidException("Invalid function body")
 
@@ -762,13 +767,13 @@ if __name__=="__main__":
     logging.basicConfig(level=numeric_level)
     scan = Scanner()
     tokens = scan.run(args.in_file, args.num_codons)
-    for n in tokens:
-        print(n)
+    #for n in tokens:
+    #    print(n)
     
     parser = Parser()
     ast = parser.run(tokens)
-    ast.print()
-    print("-"*20)
+    #ast.print()
+    #print("-"*20)
     interpreter = Interpreter(AcidNumber(15))
     interpreter.run(ast)
     
