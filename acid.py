@@ -496,8 +496,8 @@ class Interpreter:
         logging.debug("--- Interpreting input AST ---")
 
         while(len(stack) != 0):
-            logging.debug("s1: " + str(s1))
-            logging.debug("s2 reversed: " + str(s2.reverse()))
+            logging.info("s1: " + str(s1))
+            logging.info("s2 reversed: " + str(s2[::-1]))
             logging.debug("stack: " + str(stack))
             node = stack.pop()
 
@@ -643,10 +643,10 @@ class Interpreter:
                     for char in i:
                         s1.append(ord(char))
             case "printnum":
-                print(s1[len(s1)-1])
+                print(s1[len(s1)-1], end="")
                 
             case "printchar":
-                print(chr(s1[len(s1)-1])) #TODO: do we need error checking for the chr function?
+                print(chr(s1[len(s1)-1]), end="") #TODO: do we need error checking for the chr function?
             case _:
                 err = "Found symbol '" + node.children[0].token.label + "' which is not a valid symbol for sIO operations"
                 raise AcidException(err) 
@@ -756,7 +756,7 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser(description="Acid programming language interpreter")
     parser.add_argument("--input", dest='in_file', help="The location of the input file containing acid code.", required=True)
     parser.add_argument("--num_codons",dest='num_codons', help="The number of codons used for numbers (determines range of numerical values). Default = 5", default=5)
-    parser.add_argument("--log",dest='log_level', help="The level for logging statements", default="INFO")
+    parser.add_argument("--log",dest='log_level', help="The level for logging statements", default="ERROR")
     
     args = parser.parse_args()
     

@@ -8,7 +8,7 @@ so if N = 3 it will look like
 CTC #push user input onto S1 
 
 AAT AAA AAA AAA AAA AAA # push 0 onto stack 
-ATG ATC AGG # while not top elements S1 equal 
+ATG CGT # while greater than
 
 AAT AAAAAAAAAAAAAAC # push 1 onto s1 
 ACC #add 1 to count 
@@ -29,6 +29,10 @@ ACA # move * back to s2
 AAT AAAAAAAAAAAAAAC # push 1 onto s1 
 ACC #add 1 to count 
 CTG # end while loop 
+
+AAT AAA AAA AAA AAA AGG #push ascii code for new line symbol onto stack 
+CAC #print newline 
+CAT #pop off newline symbol 
 
 # this point we have 1 extra on S1 and S2, so lets return 
 # s1 to how it was when the function 

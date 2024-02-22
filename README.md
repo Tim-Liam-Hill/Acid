@@ -50,6 +50,8 @@ TODO: utility that inverts code
 
 TODO: swap some opcodes functionalities so that currently related opcodes are closer together
 
+TODO: change some logging statements from debug to info for easier debugging (getting bogged down in all the debug statements when searching for small things)
+
 #### REQUIRES PYTHON 3.10+ (due to switch case)
 
 ## Properties
