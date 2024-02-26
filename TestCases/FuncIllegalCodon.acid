@@ -1,3 +1,0 @@
-#if an illegal codon sequence is contained within a function name, an error should be thrown 
-
-AAG	AAA AAA TTC

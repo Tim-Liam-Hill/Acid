@@ -1,6 +1,0 @@
-#case where number being pushed as last operation in code 
-#but the number being pushed is less than 5 codons long 
-#5 is default for number of codons in a number 
-
-AAT AAA AAA AAG ACT 
-

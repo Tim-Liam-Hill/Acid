@@ -1,10 +1,8 @@
-import argparse
-import re
-import sys
-import logging 
 import json
 from enum import Enum
 import math
+import re
+import logging 
 
 #Declaring as global since it is the definition of what symbols stand for
 #Best keep it easily accessible and NOT duplicated 
@@ -485,9 +483,9 @@ class Interpreter:
 
     #TODO: introduce modes of running that control whether or not we print numbers as ACID base 4 numbers 
     #or regular numbers 
-    def run(self, AST): 
+    def run(self, ast): 
         
-        self.createFuncMapping(AST) #TODO: we will only be pushing references onto the stack each time we enter a scope, so that shouldn't be
+        self.createFuncMapping(ast) #TODO: we will only be pushing references onto the stack each time we enter a scope, so that shouldn't be
                                     #too bad performance wise right?? May need to check this and reimplement if that isn't the case
         self.scope = [self.func_mapping] #reset the scope table tracker in case this function is called multiple times 
         stack = [ast]
@@ -747,36 +745,18 @@ class Interpreter:
 
 class Acid: 
 
-    def __init__(self): #IDEA: use dependency injection to make this more extensible in future
-        pass 
+    def __init__(self, args): #IDEA: use dependency injection to make this more extensible in future
+                        #TODO: add options to customize behaviour of interpreter etc (eg, change mode for visualizer)
+        self.scanner = Scanner()
+        self.parser = Parser()
+        self.interpreter = Interpreter(AcidNumber(args.num_codons*3))
+
+    def run(self, args):
+        tokens = self.scanner.run(args.in_file, args.num_codons) #TODO: decide if scanner takes in num codons here or in constructor
+        ast = self.parser.run(tokens)
+        self.interpreter.run(ast)
 
 
-if __name__=="__main__": 
-    
-    parser = argparse.ArgumentParser(description="Acid programming language interpreter")
-    parser.add_argument("--input", dest='in_file', help="The location of the input file containing acid code.", required=True)
-    parser.add_argument("--num_codons",dest='num_codons', help="The number of codons used for numbers (determines range of numerical values). Default = 5", default=5)
-    parser.add_argument("--log",dest='log_level', help="The level for logging statements", default="ERROR")
-    
-    args = parser.parse_args()
-    
-    numeric_level = getattr(logging, args.log_level.upper(), None)
-    if not isinstance(numeric_level, int):
-        raise ValueError('Invalid log level: %s' % args.log_level)
-
-    logging.basicConfig(level=numeric_level)
-    scan = Scanner()
-    tokens = scan.run(args.in_file, args.num_codons)
-    #for n in tokens:
-    #    print(n)
-    
-    parser = Parser()
-    ast = parser.run(tokens)
-    #ast.print()
-    #print("-"*20)
-    interpreter = Interpreter(AcidNumber(15))
-    interpreter.run(ast)
-    
 
     
 
