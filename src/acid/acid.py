@@ -4,6 +4,7 @@ import math
 import re
 import logging 
 import sys
+import os
 
 #Declaring as global since it is the definition of what symbols stand for
 #Best keep it easily accessible and NOT duplicated 
@@ -54,16 +55,16 @@ CODON_OPCODES = {
     "CGC":  "els",
     "AGG":  "equals",
     "TCC":  "equals",
-    "CGG":  "isempty", 
-    "CGG":  "isempty", 
+    "CGG":  "isemptys1", 
+    "GCC":  "isemptys1", 
     "AGT":  "lessthan",
     "TCA":  "lessthan",
     "CGT":  "greaterthan", 
     "GCA":  "greaterthan", 
-    "ATA":  "and",
-    "TAT":  "and",
-    "CTA":  "or", 
-    "GAT":  "or", 
+    "ATA":  "swapfirstlasts1",
+    "TAT":  "swapfirstlasts1",
+    "CTA":  "isemptys2", 
+    "GAT":  "isemptys2", 
     "ATC":  "not",
     "TAG":  "not",
     "CTC":  "userin",
@@ -94,7 +95,12 @@ class SLR_ACTIONS(Enum):
 
 RECIPRICOLS = {"A":"T", "T":"A", "C":"G","G":"C"}
 
-SLR_TABLE = json.load(open("SLR_TABLE.json"))
+#TODO: check if there is a better way to open files with relative paths in Python module
+#The below works but I am not sure if it is best practice. 
+path_to_current_file = os.path.realpath(__file__)
+current_directory = os.path.dirname(path_to_current_file)
+
+SLR_TABLE = json.load(open(os.path.join(current_directory, "SLR_TABLE.json")))
 SLR_START_STATE = "0-100-102-104-106-108-11-110-112-13-15-17-19-2-21-23-41-5-59-6-7-71-79-82-84-86-88-9-90-92-94-96-98" #TODO: find a more elegant way to record this in the SLR_TABLE json file
 SLR_END_SYMBOL = "$$$" #TODO: also encode this in the SLR_TABLE.json
 CFG_RHS_SEPARATOR = " " #TODO: also encode this into SLR_TABLE.json
@@ -166,6 +172,7 @@ class AcidNumber:
                 ans = ans + AcidNumber.ACID_MAPPING[num[i]]
             return (self.ACID_NUM_MAX - int(ans,2))*multiplier
 
+#TODO: do we need Tokens to store an ID? It doesn't seem to achieve anything
 class Token: #Tokens that are stored by Nodes of the AST
 
     next_id = 1
@@ -178,6 +185,13 @@ class Token: #Tokens that are stored by Nodes of the AST
 
         self.label = label
         self.value = value
+    
+    def __eq__(self,other):
+        if isinstance(self, other.__class__): #not comparing IDs since I am not convinced that our tokens need unique IDs anyway
+            return self.label == other.label and self.value == other.value
+    
+    def resetIDs():
+        Token.next_id = 1
 
     def __str__(self):
         return "(ID: " + str(self.id) + ", Label: " + self.label + ", Value: " + str(self.value) +")"
@@ -230,26 +244,15 @@ class Scanner: #handles Lexical Analysis
     def __init__(self): 
         pass 
 
-    def run(self, file_path, num_codons): #TODO: let this take in the mode so it can handle DNA mode
-        return self.tokenize(file_path, num_codons)
+    def run(self, input, num_codons): #TODO: let this take in the mode so it can handle DNA mode
+        return self.tokenize(input, num_codons)
 
-    def tokenize(self, file_path, num_codons): 
+    def tokenize(self, input, num_codons): 
 
-        cleaned_code = ""
-        try: 
-            f = open(file_path)
-            raw_code = f.read()
-            cleaned_code = re.sub('[^ACGT]', '',raw_code)
-
-        except IOError:
-            logging.error("Could not open/read file: ", file_path)
-            sys.exit()
-
-        #I don't feel like putting everything inside the try-catch. Only want that portion to handle the 
-        #reading section.
+        cleaned_code = re.sub('[^ACGT]', '',input)
 
         if(len(cleaned_code) % 3 != 0):
-            err = "Cleaned code length is not multiple of 3, that is NOT scientifically possible."
+            err = "Cleaned code length is not multiple of 3, at least one codon is malformed."
             raise AcidException(err)
             
         i = 0 
@@ -753,7 +756,17 @@ class Acid:
         self.interpreter = Interpreter(AcidNumber(args.num_codons*3))
 
     def run(self, args):
-        tokens = self.scanner.run(args.in_file, args.num_codons) #TODO: decide if scanner takes in num codons here or in constructor
+
+        raw_code = ""
+        try: 
+            f = open(args.in_file)
+            raw_code = f.read()
+
+        except IOError:
+            logging.error("Could not open/read file: ", args.in_file)
+            sys.exit()
+        
+        tokens = self.scanner.run(raw_code, args.num_codons) #TODO: decide if scanner takes in num codons here or in constructor
         ast = self.parser.run(tokens)
         self.interpreter.run(ast)
 
