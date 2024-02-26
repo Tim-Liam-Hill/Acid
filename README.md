@@ -1,60 +1,27 @@
 # ACID
 
-Implementing my idea for a programming language
+![Acid Mascot](Acid_mascot.gif)
 
-The idea: I want something that looks like DNA sequence, and is Turing complete.
+## Welcome
 
-Didn't know about DNA-Sharp before I started designing it. Technically it isn't original but our implementations are different. Something interesting about both of our languages is that you can make both of them look like DNA in when you write them using --- (actually no, mine requires something a bit different, but I can make a mode like that with the recipricols???) but still, differences between both of our languages. There are obviously other DNA languages but mine is unique for following reasons:
+What you are currently looking at is an esoteric programming language designed and implemented by yours truly. This programming language is a Turing Complete, Interpreted programming language inspired by DNA. Please note that this project is still a work in progress and so this README is not yet finalized. Read on to find out what further plans I have in store.
 
-TODO: add reasons.
+## The Idea
 
-In any case, the idea was to have fun and work on something interesting. I enjoy programming language design and concepts surrounding it. Plus its an excuse to program, which I haven't done in a while.
+I had often heard people compare Human-written computer code to DNA and this irked me somewhat since, although the comparison is apt in some ways, it is often used in certain dubious philosophical answers. Still, it got me thinking about how to create a programming language that better represented DNA and some of its qualities. The result is Acid.
 
-What is also cool is the mix of paradigms because you are using 2 stacks as opposed to variables. Granted, not quite a Turing machine since there are a lot of nice to have higher level features, but there are some things/algorithms that would force you to approach it more like a turing machine than a regular programming language (give example, is there even one, it seems like the checking of palindromes is an example.).
+I should note that even before doing further research I did not expect to be the first person to implement a programming language based on DNA. That being said, I do believe Acid has some unique properties that set it apart. For example: [DNA-Sharp](https://esolangs.org/wiki/DNA-Sharp) and [RNA](https://esolangs.org/wiki/RNA#DNA) are 2 other esoteric languages inspired by DNA are compared with Acid in a section later.
 
-Didn't want to use ANTLR or other tools, wanted to get this from ground up myself (and as a result have developed some tools).
+In any case, the idea was to have fun and work on something interesting. I enjoy programming language design and concepts surrounding it and wanted to have a programming language, even a simple one, that I can say I developed and implemented from the ground up without the use of [ANTLR](https://www.antlr.org/) or other related tools (I don't count the work I did during my undergraduate studies since the compiler implemented in my course was for a language I did not design). As a result of this, I ended up developing a suite of tools to assist in Context Free Grammar operations, DFA/NFA operations and the creation of an [SLR parse table](https://www.geeksforgeeks.org/slr-parser-with-examples/) which is now [a separate project](https://github.com/Tim-Liam-Hill/CFGNullableFirstFollow) that I will continue working on. 
 
-TODO: get micsie to make a logo
-TODO: *~~Can you use return outside of a function?~~  No (at least, you shouldn't be able to, need to test this)
+## Requirements
 
-TODO: less than 500 lines of code
-
-TODO: release CFG once finalized (and the work is more polished)
-
-TODO: decide if have arg to disable palindrome function names
-
-TODO: explain why my test cases are in files.
-
-TODO: WRITE UNIT TESTS
-
-TODO: mention drawing the DFA and such, then go make a pull request to the other project after I change their code. Or just create my own, see below.
-
-TODO: ~~write my own NFA to DFA converter. Reeeee.
-Or I can borrow someone elses?~~  Have done this and have made it create an SLR table as well
-
-TODO: expand on SLR table to allow for better error logging. Best way I can think of to do this is to write intentionally incorrect programs, see the states that errors are thrown on and use this to learn how best to add error conditions to SLR table. Otherwise, the CFG itself can encode error messages I suppose (via non-terminals that represent specific cases of syntactic errors. I believe this is how the Python implementation does it, see [here](https://github.com/python/cpython/blob/main/Grammar/python.gram#L1187) )
-
-TODO: Incorporate final CFG definition into the code for better error checking. Or is this even necessary?
-
-TODO: Mascot is a mushroom.
-
-TODO: decide on exact root functionality.
-
-TODO: decide on what extra funny run modes to add and implement (eg: visualizer mode, acid num mode). Do we want to allow for REPL?
-
-TODO: color tokens in VSCode?? In General color tokens (maybe in visualizer)
-
-TODO: do we need to 'isempty' functions? Probably not but should review
-
-TODO: utility that inverts code
-
-TODO: swap some opcodes functionalities so that currently related opcodes are closer together
-
-TODO: change some logging statements from debug to info for easier debugging (getting bogged down in all the debug statements when searching for small things)
-
-#### REQUIRES PYTHON 3.10+ (due to switch case)
+Running the interpreter requires Python version 3.10+ due to the presence of the 'match' statement. Python 3.12.0 is the recommended version to use, but other versions should be suitable as wel. 
 
 ## Properties
+
+Acid is a stack based programming language. It has no variables: only 2 stacks onto which data can be input, manipulated and output as required. There are only 4 symbols that are recognized by acid: A, C, G and T (corresponding to the four nucleotides that make up DNA).
+
 
 * Stack based - arithmatic operations work in stack based manner (refer to textbook) (its easier)
 * Two stacks as this allows for  Simulating a Turing Machine
@@ -81,6 +48,8 @@ Functions
 * can't use same function name in same scope
 
 If any of these decisions do not make sense to you, maybe you should try more psychedelics (although if it doesn't make sense to you, that is likely a good thing.)
+
+What is also cool is the mix of paradigms because you are using 2 stacks as opposed to variables. Granted, not quite a Turing machine since there are a lot of nice to have higher level features, but there are some things/algorithms that would force you to approach it more like a turing machine than a regular programming language (give example, is there even one, it seems like the checking of palindromes is an example.).
 
 ## Program Execution
 
@@ -157,6 +126,44 @@ Note: can't contain those as codons, so the function name: AAT AAA TAA is invali
 ATA AGA ATA is (even though it contains AAG from [2,4] the check is only at the codon boundary).
 
 Create util program that tells you if function name is problematic or not. Or maybe even generates palindromic funtion names of length n codons.
+
+## TODOs
+
+~~TODO: get micsie to make a logo~~
+TODO: *~~Can you use return outside of a function?~~  No (at least, you shouldn't be able to, need to test this)
+
+TODO: less than 500 lines of code
+
+TODO: release CFG once finalized (and the work is more polished)
+
+TODO: decide if have arg to disable palindrome function names
+
+TODO: explain why my test cases are in files.
+
+TODO: WRITE UNIT TESTS
+
+TODO: mention drawing the DFA and such, then go make a pull request to the other project after I change their code. Or just create my own, see below.
+
+TODO: ~~write my own NFA to DFA converter. Reeeee.
+Or I can borrow someone elses?~~  Have done this and have made it create an SLR table as well
+
+TODO: expand on SLR table to allow for better error logging. Best way I can think of to do this is to write intentionally incorrect programs, see the states that errors are thrown on and use this to learn how best to add error conditions to SLR table. Otherwise, the CFG itself can encode error messages I suppose (via non-terminals that represent specific cases of syntactic errors. I believe this is how the Python implementation does it, see [here](https://github.com/python/cpython/blob/main/Grammar/python.gram#L1187) )
+
+TODO: Incorporate final CFG definition into the code for better error checking. Or is this even necessary?
+
+*TODO: Mascot is a mushroom.*
+
+TODO: decide on what extra funny run modes to add and implement (eg: visualizer mode, acid num mode). Do we want to allow for REPL?
+
+TODO: color tokens in VSCode?? In General color tokens (maybe in visualizer)
+
+TODO: do we need to 'isempty' functions? Probably not but should review
+
+TODO: utility that inverts code
+
+TODO: swap some opcodes functionalities so that currently related opcodes are closer together
+
+TODO: change some logging statements from debug to info for easier debugging (getting bogged down in all the debug statements when searching for small things)
 
 ##### Replacing bools
 
@@ -254,6 +261,10 @@ Eh, maybe we can make it just a function that returns true. Still, don't really 
 If we can.
 
 *Can you use return outside of a function?*
+
+## Compared to other similar Languages
+
+TODO: compare to [DNA-Sharp](https://esolangs.org/wiki/DNA-Sharp) and [RNA](https://esolangs.org/wiki/RNA#DNA)
 
 ## Next Steps
 
