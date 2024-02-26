@@ -3,6 +3,7 @@ from enum import Enum
 import math
 import re
 import logging 
+import sys
 
 #Declaring as global since it is the definition of what symbols stand for
 #Best keep it easily accessible and NOT duplicated 
