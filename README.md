@@ -8,20 +8,21 @@ What you are currently looking at is an esoteric programming language designed a
 
 ## The Idea
 
-I had often heard people compare Human-written computer code to DNA and this irked me somewhat since, although the comparison is apt in some ways, it is often used in certain dubious philosophical answers. Still, it got me thinking about how to create a programming language that better represented DNA and some of its qualities. The result is Acid.
+I had often heard people compare Human-written computer code to DNA and this irked me somewhat since, although the comparison is apt in some ways, it is often used in certain dubious philosophical arguments. Still, it got me thinking about how to create a programming language that better represented DNA and some of its qualities. The result is Acid.
 
 I should note that even before doing further research I did not expect to be the first person to implement a programming language based on DNA. That being said, I do believe Acid has some unique properties that set it apart. For example: [DNA-Sharp](https://esolangs.org/wiki/DNA-Sharp) and [RNA](https://esolangs.org/wiki/RNA#DNA) are 2 other esoteric languages inspired by DNA are compared with Acid in a section later.
 
-In any case, the idea was to have fun and work on something interesting. I enjoy programming language design and concepts surrounding it and wanted to have a programming language, even a simple one, that I can say I developed and implemented from the ground up without the use of [ANTLR](https://www.antlr.org/) or other related tools (I don't count the work I did during my undergraduate studies since the compiler implemented in my course was for a language I did not design). As a result of this, I ended up developing a suite of tools to assist in Context Free Grammar operations, DFA/NFA operations and the creation of an [SLR parse table](https://www.geeksforgeeks.org/slr-parser-with-examples/) which is now [a separate project](https://github.com/Tim-Liam-Hill/CFGNullableFirstFollow) that I will continue working on. 
+In any case, the idea was to have fun and work on something interesting. I enjoy programming language design and the concepts surrounding it and wanted to have a programming language, even a simple one, that I can say I developed and implemented from the ground up without the use of [ANTLR](https://www.antlr.org/) or other related tools (I don't count the work I did during my undergraduate studies since the compiler implemented in my course was for a language I did not design). As a result of this, I ended up developing a suite of tools to assist in Context Free Grammar operations, DFA/NFA operations and the creation of an [SLR parse table](https://www.geeksforgeeks.org/slr-parser-with-examples/) which is now [a separate project](https://github.com/Tim-Liam-Hill/CFGNullableFirstFollow) that I will continue working on.
 
 ## Requirements
 
-Running the interpreter requires Python version 3.10+ due to the presence of the 'match' statement. Python 3.12.0 is the recommended version to use, but other versions should be suitable as wel. 
+Running the interpreter requires Python version 3.10+ due to the presence of the 'match' statement. Python 3.12.0 is the recommended version to use, but other versions should be suitable as wel.
 
 ## Properties
 
-Acid is a stack based programming language. It has no variables: only 2 stacks onto which data can be input, manipulated and output as required. There are only 4 symbols that are recognized by acid: A, C, G and T (corresponding to the four nucleotides that make up DNA).
+Acid is a stack based programming language with 2 stacks (s1 and s2) that are manipulated by the user via opcodes. It has no variables: all data input, manipulation and output is done via the stacks. There are only 4 symbols that are recognized by acid: A, C, G and T (corresponding to the four nucleotides that make up DNA).
 
+Each opcode consists of 3 nucleotides since in DNA, a single amino acid is also comprised of 3 nucleotides. Similarly to DNA, sequences of amino acids (opcodes) are combined to form proteins which in the context of Acid can be thought of as units of functionality in your program (in an abstract sense). However, there are only 32  unique operations and so for any specific operation (eg: push a number onto stack 1) there are  exactly 2
 
 * Stack based - arithmatic operations work in stack based manner (refer to textbook) (its easier)
 * Two stacks as this allows for  Simulating a Turing Machine
@@ -138,9 +139,11 @@ TODO: release CFG once finalized (and the work is more polished)
 
 TODO: decide if have arg to disable palindrome function names
 
-TODO: explain why my test cases are in files.
+~~TODO: explain why my test cases are in files.~~
 
 TODO: WRITE UNIT TESTS
+
+TODO: publish as a Python module. Can include utilities as separate sub commands to make writing Acid programs easier.
 
 TODO: mention drawing the DFA and such, then go make a pull request to the other project after I change their code. Or just create my own, see below.
 
@@ -151,7 +154,7 @@ TODO: expand on SLR table to allow for better error logging. Best way I can thin
 
 TODO: Incorporate final CFG definition into the code for better error checking. Or is this even necessary?
 
-*TODO: Mascot is a mushroom.*
+*~~TODO: Mascot is a mushroom.~~ *
 
 TODO: decide on what extra funny run modes to add and implement (eg: visualizer mode, acid num mode). Do we want to allow for REPL?
 
