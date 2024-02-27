@@ -34,10 +34,77 @@ class TestScanner:
         with pytest.raises(AcidException) as exc_info:
             tokens = TestScanner.scanner.run(input, TestScanner.num_codons)
         assert exc_info.value.args[0] == "Cleaned code length is not multiple of 3, at least one codon is malformed."
+    
+    def test_notPalindrome(self): #possibly the most important test of all
+        input = "AAA CAT AAA" 
+        
+        with pytest.raises(AcidException) as exc_info:
+            tokens = TestScanner.scanner.run(input, TestScanner.num_codons)
+        assert exc_info.value.args[0] =="Function name 'CAT' is not a palindrome. That isn't in the Spirit of Acid\nPlease ensure all function names are palindromes or alter the source code of Acid to remove this check"
+            
+    def test_invalidCodonInFuncName(self): #testing all 8 cases of which codons cannot be in a function name
+        #the error for invalid codons present comes after the check for palindrome so these names must
+        #be palindromes to avoid triggering that error
+        input1 = "AAA GTT TTG AAA"
+        with pytest.raises(AcidException) as exc_info:
+            tokens = TestScanner.scanner.run(input1, TestScanner.num_codons)
+        assert exc_info.value.args[0] == "Function name 'GTTTTG' contains codon 'GTT'\nThis will lead to errors. Please adjust this function name to remove the offending codon"
+    
+        input2 = "TTT AAG GAA TTT"
+        with pytest.raises(AcidException) as exc_info:
+            tokens = TestScanner.scanner.run(input2, TestScanner.num_codons)
+        assert exc_info.value.args[0] == "Function name 'AAGGAA' contains codon 'AAG'\nThis will lead to errors. Please adjust this function name to remove the offending codon"
+    
+        input3 = "CAA CAG GAC CAA"
+        with pytest.raises(AcidException) as exc_info:
+            tokens = TestScanner.scanner.run(input3, TestScanner.num_codons)
+        assert exc_info.value.args[0] == "Function name 'CAGGAC' contains codon 'CAG'\nThis will lead to errors. Please adjust this function name to remove the offending codon"
+    
+        input4 = "GTT GTA ATG GTT"
+        with pytest.raises(AcidException) as exc_info:
+            tokens = TestScanner.scanner.run(input4, TestScanner.num_codons)
+        assert exc_info.value.args[0] == "Function name 'GTAATG' contains codon 'GTA'\nThis will lead to errors. Please adjust this function name to remove the offending codon"
+    
+        input5 = "AAG AAA AAA AAG"
+        with pytest.raises(AcidException) as exc_info:
+            tokens = TestScanner.scanner.run(input5, TestScanner.num_codons)
+        assert exc_info.value.args[0] == "Function name 'AAAAAA' contains codon 'AAA'\nThis will lead to errors. Please adjust this function name to remove the offending codon"
+    
+        input6 = "TTC TTT TTT TTC"
+        with pytest.raises(AcidException) as exc_info:
+            tokens = TestScanner.scanner.run(input6, TestScanner.num_codons)
+        assert exc_info.value.args[0] == "Function name 'TTTTTT' contains codon 'TTT'\nThis will lead to errors. Please adjust this function name to remove the offending codon"
+    
+        input7 = "AAA CAA AAC AAA"
+        with pytest.raises(AcidException) as exc_info:
+            tokens = TestScanner.scanner.run(input7, TestScanner.num_codons)
+        assert exc_info.value.args[0] == "Function name 'CAAAAC' contains codon 'CAA'\nThis will lead to errors. Please adjust this function name to remove the offending codon"
+    
+        input8 = "AAA TTC CTT AAA"
+        with pytest.raises(AcidException) as exc_info:
+            tokens = TestScanner.scanner.run(input8, TestScanner.num_codons)
+        assert exc_info.value.args[0] == "Function name 'TTCCTT' contains codon 'TTC'\nThis will lead to errors. Please adjust this function name to remove the offending codon"
+    
+    def test_missingWhileTag(self):
+        pass
 
+"""
+Test Cases (not exhaustive):
+- Missing end tags (functions, loops, if)
+- else without if
+- Functions declared incorrectly (end tag not in correct scope)
+- Boolean 'not' not followed by another boolean
+- missing boolean statements for if and while loops 
+"""
 class TestParser:
 
     def test2(self):
+        pass
+
+    def test_missingFunctionTags(self):
+        pass 
+
+    def test_missingIfTag(self):
         pass
 
 class TestInterpreter:

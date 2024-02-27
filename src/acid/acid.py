@@ -172,16 +172,13 @@ class AcidNumber:
                 ans = ans + AcidNumber.ACID_MAPPING[num[i]]
             return (self.ACID_NUM_MAX - int(ans,2))*multiplier
 
-#TODO: do we need Tokens to store an ID? It doesn't seem to achieve anything
+
 class Token: #Tokens that are stored by Nodes of the AST
 
-    next_id = 1
     #Each Token needs to store:
     #-the command type
     #optionally, the value (for most it will be None)
     def __init__(self, label, value=None):
-        self.id = Token.next_id
-        Token.next_id += 1 
 
         self.label = label
         self.value = value
@@ -194,10 +191,10 @@ class Token: #Tokens that are stored by Nodes of the AST
         Token.next_id = 1
 
     def __str__(self):
-        return "(ID: " + str(self.id) + ", Label: " + self.label + ", Value: " + str(self.value) +")"
+        return "(Label: " + self.label + ", Value: " + str(self.value) +")"
     
     def __repr__(self):
-        return "(ID: " + str(self.id) + ", Label: " + self.label + ", Value: " + str(self.value) +")"
+        return "(Label: " + self.label + ", Value: " + str(self.value) +")"
 
 class ASTNode: #node for the AST 
 
@@ -310,7 +307,7 @@ class Scanner: #handles Lexical Analysis
 
         if(k == len(cleaned_code)):
             #throw error, there is no closing tag for function name 
-            err = "Function name does not have a closing tag, that is a bad thing in general"
+            err = "Function name does not have a closing tag"
 
             if(len(func_name) >=6):
                 err = err + "\nCheck function with name: " + func_name[i+3:i+9] 
@@ -319,7 +316,7 @@ class Scanner: #handles Lexical Analysis
         
         if(func_name != func_name[::-1]):
             err = "Function name '" + func_name +"' is not a palindrome. That isn't in the Spirit of Acid"
-            err = err + "\nPlease ensure all function names are palindromes or alter the source code to remove this check"
+            err = err + "\nPlease ensure all function names are palindromes or alter the source code of Acid to remove this check"
             raise AcidException(err)
 
         not_allowed_codons = ["AAA", "TTT", "CAA", "GTT", "AAG", "TTC", "CAG", "GTA"]
