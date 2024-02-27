@@ -625,6 +625,7 @@ class Interpreter:
 
     #TODO: allow for output to be sent somewhere besides console? would help for testing
     #maybe allow for overriding sys.stdout
+    #TODO: maybe add in a '>' when requesting input to make this more clear to the user
     def io(self, s1, node):
         logging.debug("Performing IO operation: " + node.children[0].token.label)
         match node.children[0].token.label:
