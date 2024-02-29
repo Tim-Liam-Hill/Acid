@@ -131,7 +131,8 @@ class AcidNumber:
     BIN_MAPPING = {"00":"A", "01":"C", "10":"G", "11":"T"}
     ACID_MAPPING = {"A":"00", "C":"01", "G":"10", "T":"11"}
 
-    def __init__(self, numlength=15):
+    def __init__(self, num_codons=5):
+        numlength=num_codons*3
         self.ACID_NUM_LENGTH = numlength
         self.ACID_NUM_MAX = 4**(numlength-1) -1 #maximum value for any number if we allow for 15 codon long numbers (first codon is sign codon)
         self.ACID_NUM_MIN = -1 * (self.ACID_NUM_MAX)
@@ -751,7 +752,7 @@ class Acid:
                         #TODO: add options to customize behaviour of interpreter etc (eg, change mode for visualizer)
         self.scanner = Scanner()
         self.parser = Parser()
-        self.interpreter = Interpreter(AcidNumber(args.num_codons*3))
+        self.interpreter = Interpreter(AcidNumber(args.num_codons))
 
     def run(self, args):
 
