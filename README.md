@@ -22,28 +22,19 @@ Running the interpreter requires Python version 3.10+ due to the presence of the
 
 Acid is a stack based programming language with 2 stacks (s1 and s2) that are manipulated by the user via opcodes. It has no variables: all data input, manipulation and output is done via the stacks. There are only 4 symbols that are recognized by acid: A, C, G and T (corresponding to the four nucleotides that make up DNA). Any non-nucleotide character is interpreted as a character (and I highly recommend keeping all of your comments in lowercase to avoid accidentally adding an extra nucleotide to your code, unless you like mutations in DNA).
 
-Each opcode consists of 3 nucleotides since in DNA, a single amino acid is also comprised of 3 nucleotides. Similarly to DNA, sequences of amino acids (opcodes) are combined to form proteins which, in the context of Acid, can be thought of as units of functionality in your program (in an abstract sense). However, there are only 32  unique operations and so for any specific operation (eg: push a number onto stack 1) there are exactly 2 opcodes that achieve this functionality. This is intentional since in human DNA, various different combinations of nucleotides can form the same amino acid. 
+Each opcode consists of 3 nucleotides since in DNA, a single amino acid is also comprised of 3 nucleotides. Similarly to DNA, sequences of amino acids (opcodes) are combined to form proteins which, in the context of Acid, can be thought of as units of functionality in your program (in an abstract sense). However, there are only 32  unique operations and so for any specific operation (eg: push a number onto stack 1) there are exactly 2 opcodes that achieve this functionality. This is intentional since in human DNA, various different combinations of nucleotides can form the same amino acid.
 
 As for data types, there is only one data type: the Number data type. Numbers are all integers and are specified by a base 4 number system in the code (all output is in base 10 however). Certain operations interpret numbers on the stack by their Ascii code, allowing for access to both numerical and string operations.
 
-*Wow, this sounds a lot like a Turing-Tarpit...*  hold that thought. There are some cool features to this language that help make it (slightly) more convenient than an actual Turing machine. An example of this are functions! Yes, that's right, you can define functions in this programming language! Functions are defined by having a pair of 'start-function' tags and matching 'end-function' tags both with the same associated function name (the function body is the contents that appears between these tags). You can define functions within functions, and the scope of these functions is tied to the previous function it was declared in. 
-
-Functions
-
-* You define the name
-* Name must be a palindrome
-* Scope of function is to outer function it finds itself in.
-* Name has restrictions (see later)
-* put brackets if you want, I don't care and neither does Acid.
-* functions can be defined anywhere, don't have to be defined before they are called ~~(? sure about this??)~~
-* Return statement always maps to the function in which it appears (ie, the last defined function name).
-* The same function can have multiple return statements or none at all
-* Name must be of length n*3 (n>= 0)
-* can't use same function name in same scope
+*Wow, this sounds a lot like a Turing-Tarpit...*  hold that thought. There are some cool features to this language that help make it (slightly) more convenient than an actual Turing machine. An example of this are functions! Yes, that's right, you can define functions in this programming language! Functions are defined by having a pair of 'start-function' tags and matching 'end-function' tags both with the same associated function name (the function body is the contents that appears between these tags). You can define functions within functions, and the scope of these functions is tied to the previous function it was declared in. Just keep in mind the following: function names can't contain certain codons and must be palindromes (for no other reason than I think this should be the case).
 
 If any of these decisions do not make sense to you, maybe you should try more psychedelics (although if it doesn't make sense to you, that is likely a good thing.)
 
 What is also cool is the mix of paradigms because you are using 2 stacks as opposed to variables. Granted, not quite a Turing machine since there are a lot of nice to have higher level features, but there are some things/algorithms that would force you to approach it more like a turing machine than a regular programming language (give example, is there even one, it seems like the checking of palindromes is an example.).
+
+## Proof of Turing Completeness
+
+df 
 
 ## Program Execution
 
