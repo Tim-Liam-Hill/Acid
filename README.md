@@ -24,9 +24,32 @@ Acid is a stack based programming language with 2 stacks (s1 and s2) that are ma
 
 Each opcode consists of 3 nucleotides since in DNA, a single amino acid is also comprised of 3 nucleotides. Similarly to DNA, sequences of amino acids (opcodes) are combined to form proteins which, in the context of Acid, can be thought of as units of functionality in your program (in an abstract sense). However, there are only 32  unique operations and so for any specific operation (eg: push a number onto stack 1) there are exactly 2 opcodes that achieve this functionality. This is intentional since in human DNA, various different combinations of nucleotides can form the same amino acid.
 
-As for data types, there is only one data type: the Number data type. Numbers are all integers and are specified by a base 4 number system in the code (all output is in base 10 however). Certain operations interpret numbers on the stack by their Ascii code, allowing for access to both numerical and string operations.
+#### Data Types
 
-*Wow, this sounds a lot like a Turing-Tarpit...*  hold that thought. There are some cool features to this language that help make it (slightly) more convenient than an actual Turing machine. An example of this are functions! Yes, that's right, you can define functions in this programming language! Functions are defined by having a pair of 'start-function' tags and matching 'end-function' tags both with the same associated function name (the function body is the contents that appears between these tags). You can define functions within functions, and the scope of these functions is tied to the previous function it was declared in. Just keep in mind the following: function names can't contain certain codons and must be palindromes (for no other reason than I think this should be the case).
+As for data types, there is only one data type: the Number data type. Numbers are all integers and are specified by a base 4 number system in the Acid code. These numbers are written in Sign-Magnitude notation and by default, a number is 5 Codons in length (giving a range of [-268435455, 268435455] inclusive).
+
+
+
+
+
+Certain operations interpret numbers on the stack by their Ascii code, allowing for access to both numerical and string operations.
+
+#### Functions
+
+*Wow, this language sounds a lot like a [Turing-Tarpit](https://esolangs.org/wiki/Turing_tarpit)...*  hold that thought. There are some cool features to this language that help make it (slightly) more convenient than an actual Turing machine. An example of this are functions! Yes, that's right, you can define functions in this programming language! Functions are defined by having a pair of 'start-function' tags and matching 'end-function' tags both with the same associated function name (the function body is the contents that appears between these tags). You can define functions within functions, and the scope of these functions is tied to the previous function it was declared in. Just keep in mind the following: function names can't contain the below certain codons:
+
+* AAA
+* TTT
+* CAA
+* GTT
+* AAG
+* TTC
+* CAG
+* GTA
+
+Note: the check is at the codon boundary so the function name ``AAT AAA TAA`` is invalid (contains AAA) but ``ATA AGA ATA`` is valid since even though it contains AAG from [2,4], the check is only on a codon-by-codon basis.
+
+Furthermore, all function names must be palindromes (for no other reason than I think this should be the case).
 
 If any of these decisions do not make sense to you, maybe you should try more psychedelics (although if it doesn't make sense to you, that is likely a good thing.)
 
@@ -34,7 +57,7 @@ What is also cool is the mix of paradigms because you are using 2 stacks as oppo
 
 ## Proof of Turing Completeness
 
-df 
+TODO: show how language can simulate a Turing Machine
 
 ## Program Execution
 
@@ -93,22 +116,6 @@ Alternatively, you can use a function to evaluate complex conditions and call th
 ## Opcodes
 
 I realize that I may want an opcode for checking if S1 is empty. Could make things a bit easier (eg: lets you determine length of string without having to keep a count as you take in every char from user).
-
-TODO: determine the strings from which valid function names can be derived.
-
-Can't contain:
-
-* AAA
-* TTT
-* CAA
-* GTT
-* AAG
-* TTC
-* CAG
-* GTA
-
-Note: can't contain those as codons, so the function name: AAT AAA TAA is invalid but
-ATA AGA ATA is (even though it contains AAG from [2,4] the check is only at the codon boundary).
 
 Create util program that tells you if function name is problematic or not. Or maybe even generates palindromic funtion names of length n codons.
 
