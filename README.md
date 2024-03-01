@@ -34,7 +34,7 @@ Certain operations interpret numbers on the stack by their Ascii code, allowing 
 
 #### Functions
 
-*Wow, this language sounds a lot like a [Turing-Tarpit](https://esolangs.org/wiki/Turing_tarpit)...*  hold that thought. There are some cool features to this language that help make it (slightly) more convenient than an actual Turing machine. An example of this are functions! Yes, that's right, you can define functions in this programming language! Functions are defined by having a pair of 'start-function' tags and matching 'end-function' tags both with the same associated function name (the function body is the contents that appears between these tags). You can define functions within functions, and the scope of these functions is tied to the previous function it was declared in. Just keep in mind the following: function names can't contain the below certain codons:
+*Wow, this language sounds a lot like a [Turing-Tarpit](https://esolangs.org/wiki/Turing_tarpit)...*  hold that thought. There are some cool features to this language that help make it (slightly) more convenient than an actual Turing machine. An example of this are functions - yes, that's right, you can define functions in this programming language! Functions are defined by having a pair of 'start-function' tags and matching 'end-function' tags both with the same associated function name (the function body is the contents that appears between these tags). You can define functions within functions, and the scope of these functions is tied to the previous function it was declared in. Just keep in mind the following: function names can't contain the below certain codons:
 
 * AAA
 * TTT
@@ -47,9 +47,14 @@ Certain operations interpret numbers on the stack by their Ascii code, allowing 
 
 Note: the check is at the codon boundary so the function name ``AAT AAA TAA`` is invalid (contains AAA) but ``ATA AGA ATA`` is valid since even though it contains AAG from [2,4], the check is only on a codon-by-codon basis.
 
-Furthermore, all function names must be palindromes (for no other reason than I think this should be the case).
+Furthermore, all function names must be palindromes (for no other reason than I think this should be the case). If this decision does not make sense to you, this is likely a good thing. Below is an example of a program that defines an empty function:
 
-If any of these decisions do not make sense to you, this is likely a good thing.
+
+```
+AAA CAT TAC AAA #define function with name 'cattact' between 2 'start function' codons/tags
+#empty function body
+CAA CAT TAC CAA #declare that the body of funciton 'cattac'is now finished
+```
 
 # README BEYOND THIS POINT IS STILL IN PROGRESS
 
