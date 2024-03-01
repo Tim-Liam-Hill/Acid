@@ -28,9 +28,7 @@ Each opcode consists of 3 nucleotides since in DNA, a single amino acid is also 
 
 As for data types, there is only one data type: the Number data type. Numbers are all integers and are specified by a base 4 number system in the Acid code. These numbers are written in Sign-Magnitude notation and by default, a number is 5 Codons in length (giving a range of [-268435455, 268435455] inclusive).
 
-
-
-
+Writing numbers work as follows
 
 Certain operations interpret numbers on the stack by their Ascii code, allowing for access to both numerical and string operations.
 
@@ -51,7 +49,11 @@ Note: the check is at the codon boundary so the function name ``AAT AAA TAA`` is
 
 Furthermore, all function names must be palindromes (for no other reason than I think this should be the case).
 
-If any of these decisions do not make sense to you, maybe you should try more psychedelics (although if it doesn't make sense to you, that is likely a good thing.)
+If any of these decisions do not make sense to you, this is likely a good thing.
+
+# README BEYOND THIS POINT IS STILL IN PROGRESS
+
+
 
 What is also cool is the mix of paradigms because you are using 2 stacks as opposed to variables. Granted, not quite a Turing machine since there are a lot of nice to have higher level features, but there are some things/algorithms that would force you to approach it more like a turing machine than a regular programming language (give example, is there even one, it seems like the checking of palindromes is an example.).
 
@@ -62,6 +64,13 @@ TODO: show how language can simulate a Turing Machine
 ## Program Execution
 
 First goes through and checks everything. If single syntax error, it won't run. Why? Because you wouldn't want to use DNA to create an organism without first checkin you aren't creating a monster.
+
+## How Acid reflects DNA
+
+* Inversion of codons = same thing (like DNA sorta)
+* Redundancy
+* Nuecleotides->Codons->Proteins
+* 
 
 ## Visualisation
 
