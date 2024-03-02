@@ -26,9 +26,65 @@ Each opcode consists of 3 nucleotides since in DNA, a single amino acid is also 
 
 #### Data Types
 
-As for data types, there is only one data type: the Number data type. Numbers are all integers and are specified by a base 4 number system in the Acid code. These numbers are written in Sign-Magnitude notation and by default, a number is 5 Codons in length (giving a range of [-268435455, 268435455] inclusive).
+As for data types, there is only one data type: the Number data type. Numbers are all integers and are specified by a base 4 number system in the Acid code, with symbols mapping to the following digits:
 
-Writing numbers work as follows
+* A = 0
+* C = 1
+* G = 2
+* T = 3
+
+Numbers are written in Sign-Magnitude notation and by default, a number is 5 Codons in length (giving a range of [-268435455, 268435455] inclusive).
+
+Writing numbers work as follows:
+
+* If the leading nucleotide is an 'A', the number is positive
+* If the leading nucleotide is a 'C', the number is negative
+* If the leading nucleotide is a 'G', the number is positive AND its magnitude MAX_VALUE - magnitude.
+* If the leading nucleotide is a 'T', the number is negative AND its magnitude MAX_VALUE - magnitude.
+
+Does this sound confusing? If so, let try and give asome examples:
+
+*Example 1*
+
+```
+AAA AAA AAA AAA AAG 
+Written in base 4 notation this becomes:
++00000000000002
+The integer value for this would be:
+2*(pow(4,0)) = 2
+```
+
+*Example 2*
+
+```
+CAA AGA ATA AAA ACA 
+Written in base 4 notation this becomes:
+-00020030000020
+The integer value for this would be:
+-1*(1*(pow(4,1)) + 3*(pow(4,7))+2*(pow(4,10)))= -2146308
+```
+
+*Example 3*
+
+```
+
+TAA GTT AAA ACC AAA 
+Written in base 4 notation this becomes:
++00233000011000
+The integer value for this would be: 
+268435455 - (1*(pow(4,3)) + 1*(pow(4,4)) + 3*(pow(4,9))+ 3*(pow(4,10)) +   2*(pow(4,11))) = 256114367
+```
+
+Because the impemented in this way, you can 'invert' all nucleotides of a number and have it still represent the same number. That is to say: we define the inverse of a nucleotide to be the nucleotide that would bond with this symbol in a strand of DNA. See below for an example:
+
+```
+AAAAAAAAACAACGG = 1050
+TTTTTTTTTGTTGCC = 1050
+```
+
+To assist with writing numbers in Acid I have included a helper 'Bas4Convert.py' file in the source code.
+
+#### IO
 
 Certain operations interpret numbers on the stack by their Ascii code, allowing for access to both numerical and string operations.
 
@@ -49,7 +105,6 @@ Note: the check is at the codon boundary so the function name ``AAT AAA TAA`` is
 
 Furthermore, all function names must be palindromes (for no other reason than I think this should be the case). If this decision does not make sense to you, this is likely a good thing. Below is an example of a program that defines an empty function:
 
-
 ```
 AAA CAT TAC AAA #define function with name 'cattact' between 2 'start function' codons/tags
 #empty function body
@@ -57,8 +112,6 @@ CAA CAT TAC CAA #declare that the body of funciton 'cattac'is now finished
 ```
 
 # README BEYOND THIS POINT IS STILL IN PROGRESS
-
-
 
 What is also cool is the mix of paradigms because you are using 2 stacks as opposed to variables. Granted, not quite a Turing machine since there are a lot of nice to have higher level features, but there are some things/algorithms that would force you to approach it more like a turing machine than a regular programming language (give example, is there even one, it seems like the checking of palindromes is an example.).
 
@@ -75,7 +128,9 @@ First goes through and checks everything. If single syntax error, it won't run. 
 * Inversion of codons = same thing (like DNA sorta)
 * Redundancy
 * Nuecleotides->Codons->Proteins
-* 
+* invert entire code (incl numbers) and you get same program (DNA both sides replication thingy)
+* It can look like DNA
+* R
 
 ## Visualisation
 
