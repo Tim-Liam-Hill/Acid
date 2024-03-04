@@ -35,13 +35,19 @@ class TestScanner:
             tokens = TestScanner.scanner.run(input, TestScanner.num_codons)
         assert exc_info.value.args[0] == "Cleaned code length is not multiple of 3, at least one codon is malformed."
     
-    def test_notPalindrome(self): #possibly the most important test of all
+    def test_notPalindrome(self): #possibly the most important test of all, checks that function names must be palindromes
         input = "AAA CAT AAA" 
         
         with pytest.raises(AcidException) as exc_info:
             tokens = TestScanner.scanner.run(input, TestScanner.num_codons)
         assert exc_info.value.args[0] =="Function name 'CAT' is not a palindrome. That isn't in the Spirit of Acid\nPlease ensure all function names are palindromes or alter the source code of Acid to remove this check"
-            
+
+    def test_emptyFunctionName(self):
+        input = "AAA AAA CAA CAA"
+        
+        tokens = TestScanner.scanner.run(input, TestScanner.num_codons)
+        assert tokens == [Token("funcstart1"), Token("funcname", ""), Token("funcstart1"), Token("funcend1"), Token("funcname",""),Token("funcend1")]
+
     def test_invalidCodonInFuncName(self): #testing all 8 cases of which codons cannot be in a function name
         #the error for invalid codons present comes after the check for palindrome so these names must
         #be palindromes to avoid triggering that error
@@ -85,8 +91,18 @@ class TestScanner:
             tokens = TestScanner.scanner.run(input8, TestScanner.num_codons)
         assert exc_info.value.args[0] == "Function name 'TTCCTT' contains codon 'TTC'\nThis will lead to errors. Please adjust this function name to remove the offending codon"
     
-    def test_missingWhileTag(self):
-        pass
+    def test_numTooShort(self):
+        input1 = "AAT AAA AAA AAA AAA" #this exception only occurs if the last operation involves a number. Normally it would result in incorrect app behaviour instead
+        with pytest.raises(AcidException) as exc_info:
+            tokens = TestScanner.scanner.run(input1, TestScanner.num_codons)
+        assert exc_info.value.args[0] == "Number AAAAAAAAAAAA is not of length 5 codons"
+    
+    #below ensures that errors are thrown if there is no matching end tag func related opcodes
+    def test_missingMatchingEndTag(self):
+        input1 = "AAA CAT TAC" #this exception only occurs if the last operation involves a number. Normally it would result in incorrect app behaviour instead
+        with pytest.raises(AcidException) as exc_info:
+            tokens = TestScanner.scanner.run(input1, TestScanner.num_codons)
+        assert exc_info.value.args[0] == "Function name does not have a closing tag\nCheck function with name: CATTAC"
 
 """
 Test Cases (not exhaustive):

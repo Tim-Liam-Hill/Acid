@@ -4,7 +4,7 @@
 
 ## Welcome
 
-What you are currently looking at is an esoteric programming language designed and implemented by yours truly. This programming language is a Turing Complete, Interpreted programming language inspired by DNA. Please note that this project is still a work in progress and so this README is not yet finalized. Read on to find out what further plans I have in store.
+What you are currently looking at is an esoteric programming language designed and implemented by yours truly. This programming language is a Turing Complete, Interpreted programming language inspired by DNA. Please note that while the main functionality has been implemented, this project is still a work in progress and so both unit tests and this README are not yet finalized. Read on to find out what further plans I have in store.
 
 ## The Idea
 
@@ -110,6 +110,8 @@ AAA CAT TAC AAA #define function with name 'cattact' between 2 'start function' 
 #empty function body
 CAA CAT TAC CAA #declare that the body of funciton 'cattac'is now finished
 ```
+
+*You didn't hear this from me, but the empty string is a valid function name. Do with this information what you will.* 
 
 # README BEYOND THIS POINT IS STILL IN PROGRESS
 

@@ -311,7 +311,7 @@ class Scanner: #handles Lexical Analysis
             err = "Function name does not have a closing tag"
 
             if(len(func_name) >=6):
-                err = err + "\nCheck function with name: " + func_name[i+3:i+9] 
+                err = err + "\nCheck function with name: " + func_name[i:i+9] 
             else: err = err + "\nCheck function with name: " +  func_name
             raise AcidException(err)
         
