@@ -42,7 +42,7 @@ Writing numbers work as follows:
 * If the leading nucleotide is a 'G', the number is positive AND its magnitude MAX_VALUE - magnitude.
 * If the leading nucleotide is a 'T', the number is negative AND its magnitude MAX_VALUE - magnitude.
 
-Does this sound confusing? If so, let try and give asome examples:
+Does this sound confusing? If so, let try and give some examples:
 
 *Example 1*
 
@@ -98,7 +98,7 @@ Acid will print the top value of stack 1 as an integer number
 
 * Print as char (opcodes ``CAC`` and ``GTG``)
 
-Acid will interpret the top value of stack 1 as the integer code for an ascii value and print the corresponding ascii char. For example: if the number on top of stack 1 is 97 then the character 'a' will be output. 
+Acid will interpret the top value of stack 1 as the integer code for an ascii value and print the corresponding ascii char. For example: if the number on top of stack 1 is 97 then the character 'a' will be output.
 
 #### Functions
 
@@ -125,13 +125,111 @@ CAA CAT TAC CAA #declare that the body of funciton 'cattac'is now finished
 
 *You didn't hear this from me, but the empty string is a valid function name. Do with this information what you will.*
 
-# README BEYOND THIS POINT IS STILL IN PROGRESS
+## Opcodes
 
-What is also cool is the mix of paradigms because you are using 2 stacks as opposed to variables. Granted, not quite a Turing machine since there are a lot of nice to have higher level features, but there are some things/algorithms that would force you to approach it more like a turing machine than a regular programming language (give example, is there even one, it seems like the checking of palindromes is an example.).
+Below is the table that maps opcodes to their corresponding actions.
+
+| Primary | Redundant | ExplanationDescription                                                                                                                                                        |  |
+| ------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | - |
+| AAA     | TTT       | Function name declarator. Function name is what appears between this tag. You can use either for the start or for the end.                                                    |  |
+| CAA     | GTT       | Function end. Function name appears between these 2 tags. Declares the end of that function and is an implicit return statement.                                              |  |
+| AAC     | TTG       | Prints numerical value stored at S1[0].                                                                                                                                       |  |
+| CAC     | GTG       | Prints ascii char from value stored at S1[0].                                                                                                                                 |  |
+| AAG     | TTC       | Call function with name between this tag. Can use either 'AAG' or 'TTC' for start/end.                                                                                        |  |
+| CAG     | GTA       | Return from function. Different from function end opcode: this is used to leave function prematurely. Function name appears between the two instances.                        |  |
+| AAT     | TTA       | Push value onto S1. Value is predetermined length (see data types).                                                                                                           |  |
+| CAT     | GTA       | Pop S1. Interpreted as delete from that stack as opposed to pop and use (so C++ stack style pop as opposed to another language))                                              |  |
+| ACA     | TGT       | Push top of S1 onto S2 then pop S1. Basically, move S1 to S2                                                                                                                  |  |
+| CCA     | GGT       | Push top of S2 onto S1 then pop S2. Basically, move S2 to S1                                                                                                                 |  |
+| ACC     | TGG       | Add top 2 values of S1 and store result in S1. Follows Postfix notation                                                                                                       |  |
+| CCC     | GGG       | Sub top 2 values of S1 and store result in S1. Follows Postfix notation                                                                                                      |  |
+| ACG     | TGC       | Mult top 2 values of S1.                                                                                                                                                      |  |
+| CCG     | GGC       | Divide top 2 values of S1. Pushes remainder onto S2!! (Number that is popped first is dividend, second number is divisor )                                                   |  |
+| ACT     | TGA       | Root operation. S[0] to the root of S[1])). Pushes int diff onto S2 (todo: elaborate))                                                                                        |  |
+| CCT     | GGA       | Pow (S[0] ^ S[1]) and push result to S1                                                                                                                                       |  |
+| AGA     | TCT       | Start if statement block                                                                                                                                                      |  |
+| CGA     | GCT       | End if statement block                                                                                                                                                        |  |
+| AGC     | TCG       | Else if                                                                                                                                                                       |  |
+| CGC     | GCG       | Else                                                                                                                                                                          |  |
+| AGG     | TCC       | Equals S1 (doesn't remove). Treats both items as numbers.                                                                                                                     |  |
+| CGG     | GCC       | Check if S1 is empty. IS a boolean returning function Allows for more convenient operations (TODO: elaborate with an example)                                                 |  |
+| AGT     | TCA       | Less than (is second last element s1 smaller than last element)                                                                                                               |  |
+| CGT     | GCA       | Greater than (is second last element s1 greater than last element)                                                                                                          |  |
+| ATA     | TAT       | Swap first and last elements of s1                                                                                                                                            |  |
+| CTA     | GAT       | Check if s2 empty. IS A BOOLEAN RETURNING FUNCTION                                                                                                                            |  |
+| ATC     | TAG       | Not                                                                                                                                                                           |  |
+| CTC     | GAG       | Push user input onto S1. If input is an integer within the range of the program, it will push a single int onto s1 otherwise it will push the ascii code of each char onto s1 |  |
+| ATG     | TAC       | Start while loop                                                                                                                                                              |  |
+| CTG     | GAC       | End while loop                                                                                                                                                                |  |
+| ATT     | TAA       | Swap S1 and S2 top values.                                                                                                                                                    |  |
+| CTT     | GAA       | Copy top of S1 and push that value back onto S1. Without this, some things become very difficult/impossible (eg, how do you retain a number after an operation?) )            |  |
 
 ## Proof of Turing Completeness
 
-TODO: show how language can simulate a Turing Machine
+The [formal definition for a Turing Machine](https://brilliant.org/wiki/turing-machines/) is as follows:
+
+A Turing Machine is defined as the 7-tuple **⟨**Q**,**q**0****,**F**,**Γ**,**b**,**Σ**,**δ**⟩**, where
+
+* **Q** is a finite, non-empty set of *states*
+* **q**0∈**Q** is the *initial state*
+* **F**⊂**Q** is the set of *accepting states*
+* **Γ** is a finite, non-empty set of *tape symbols*
+* **b**∈**Γ** is the *blank symbol*
+* **Σ**⊂**Γ**∖**{**b**}** is a set of *input symbols*
+* **δ**:**(**Q**∖**F**)**×**Γ**→**Q**×**Γ**×**{**L**,**R**}** is the  *transition function* , which is a partial function
+
+Suppose you have some Turing Machine T. This can be simulated by Acid in the following manner:
+
+* Create a new, empty Acid program
+* Select some string **s** such that **s** is not an element of **Γ** (**Γ** \ {**s**} == **Γ**)
+* For each state in **Q**, create a new function in an Acid program.
+* For each created function, in the function body, create *n* many 'if' statements where *n* is the cardinality of **Γ**. The body of each 'if' statement is the 'return' function for now, and each if statement checks for equality between the top of S1 and one symbol of **Γ**.
+
+That is to say, the body of each function would resemble the pseudo-code below: 
+
+```
+
+func state1(){
+	if(S1_top == symbol_1){
+		return
+	}
+	if(S1_top == symbol_2){
+		return
+	}
+	...
+	if(S1_top == symbol_n){
+		return
+	}
+}
+//repeat for each other state
+```
+
+* For each function that does NOT map to a state in **F** , and each **e** ∈ **Γ**, add the following to the contents of the if statement checks for equality with symbol **e**
+
+```
+popS1()
+pushS1(x)
+```
+
+Where *x* is the element of **Q** that would be written onto the tape.
+
+Then, to simulate left transition:
+
+```
+movS1S2() 
+```
+
+That is, run the opcode that copies the top of S1 to S2 and pops of S1 as this simulates moving the tape to the left. Similarly, a right transition would be the below command:
+
+```
+movS2S1()
+```
+
+!!!! REMEMBER: don't create a new symbol for empty symbol, just check if S1 is empty!!!!! (Or do we need an empty symbol??)
+
+# README BEYOND THIS POINT IS STILL IN PROGRESS
+
+What is also cool is the mix of paradigms because you are using 2 stacks as opposed to variables. Granted, not quite a Turing machine since there are a lot of nice to have higher level features, but there are some things/algorithms that would force you to approach it more like a turing machine than a regular programming language (give example, is there even one, it seems like the checking of palindromes is an example.).
 
 ## Program Execution
 
@@ -168,17 +266,6 @@ That's how my visualisation will work.
 
 TODO: implement and make it look like the code is rotating.
 
-## Numbers
-
-* numbers are 5 codons long
-* sign and magnitude
-* A leading symbol means positive
-  C leading symbol means negative
-  T leading symbol means positive AND recipricol interpretation
-  G leading symbol means negative AND recipricol interpretation
-
-TODO: test the recipricol with negative numbers. Should work but you never know.
-
 ## Boolean Statements
 
 * 0 is False
@@ -195,12 +282,6 @@ Alternatively, you can use a function to evaluate complex conditions and call th
 * Any non A C G T characters interpreted as comments
 * so don't accidentally use those in your comments
 * Fun way if introducing mutation to code
-
-## Opcodes
-
-I realize that I may want an opcode for checking if S1 is empty. Could make things a bit easier (eg: lets you determine length of string without having to keep a count as you take in every char from user).
-
-Create util program that tells you if function name is problematic or not. Or maybe even generates palindromic funtion names of length n codons.
 
 ## TODOs
 
@@ -242,6 +323,8 @@ TODO: swap some opcodes functionalities so that currently related opcodes are cl
 
 TODO: change some logging statements from debug to info for easier debugging (getting bogged down in all the debug statements when searching for small things)
 
+TODO: make a helper function that, given some integer x >= 0 generates all valid function names of length x codons.
+
 ##### Replacing bools
 
 The opcodes for 'and' and 'or' are now free for something else, but I am not sure what exactly I want to replace them with. Some things that come to mind:
@@ -272,44 +355,11 @@ matches the check if s1 is empty operation we currently have
 
 Maybe lets get back to this once I have written some more sample programs.
 
-| Primary | Redundant | ExplanationDescription                                                                                                                                                        |  |
-| ------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | - |
-| AAA     | TTT       | Function name declarator. Function name is what appears between this tag. You can use either for the start or for the end.                                                    |  |
-| CAA     | GTT       | Function end. Function name appears between these 2 tags. Declares the end of that function and is an implicit return statement.                                              |  |
-| AAC     | TTG       | Prints numerical value stored at S1[0].                                                                                                                                       |  |
-| CAC     | GTG       | Prints ascii char from value stored at S1[0].                                                                                                                                 |  |
-| AAG     | TTC       | Call function with name between this tag. Can use either 'AAG' or 'TTC' for start/end.                                                                                        |  |
-| CAG     | GTA       | Return from function. Different from function end opcode: this is used to leave function prematurely. Function name appears between the two instances.                        |  |
-| AAT     | TTA       | Push value onto S1. Value is predetermined length (see data types).                                                                                                           |  |
-| CAT     | GTA       | Pop S1. Interpreted as delete from that stack as opposed to pop and use (so C++ stack style pop as opposed to another language))                                              |  |
-| ACA     | TGT       | Push top of S1 onto S2 then pop S1. Basically, move S1 to S2                                                                                                                  |  |
-| CCA     | GGT       | Push top of S2 onto S1 then pop S2. Basically, move S2 to S1                                                                                                                 |  |
-| ACC     | TGG       | Add top 2 values of S1 and store result in S1. Follows Postfix notation                                                                                                       |  |
-| CCC     | GGG       | Sub top 2 values of S1 and store result in S1. Follows Postfix notation                                                                                                      |  |
-| ACG     | TGC       | Mult top 2 values of S1.                                                                                                                                                      |  |
-| CCG     | GGC       | Divide top 2 values of S1. Pushes remainder onto S2!! (Number that is popped first is dividend, second number is divisor )                                                   |  |
-| ACT     | TGA       | Root operation. S[0] to the root of S[1])). Pushes int diff onto S2 (todo: elaborate))                                                                                        |  |
-| CCT     | GGA       | Pow (S[0] ^ S[1]) and push result to S1                                                                                                                                       |  |
-| AGA     | TCT       | Start if statement block                                                                                                                                                      |  |
-| CGA     | GCT       | End if statement block                                                                                                                                                        |  |
-| AGC     | TCG       | Else if                                                                                                                                                                       |  |
-| CGC     | GCG       | Else                                                                                                                                                                          |  |
-| AGG     | TCC       | Equals S1 (doesn't remove). Treats both items as numbers.                                                                                                                     |  |
-| CGG     | GCC       | Check if S1 is empty. IS a boolean returning function Allows for more convenient operations (TODO: elaborate with an example)                                                 |  |
-| AGT     | TCA       | Less than (is second last element s1 smaller than last element)                                                                                                               |  |
-| CGT     | GCA       | Greater than (is second last element s1 greater than last element)                                                                                                          |  |
-| ATA     | TAT       | Swap first and last elements of s1                                                                                                                                            |  |
-| CTA     | GAT       | Check if s2 empty. IS A BOOLEAN RETURNING FUNCTION                                                                                                                            |  |
-| ATC     | TAG       | Not                                                                                                                                                                           |  |
-| CTC     | GAG       | Push user input onto S1. If input is an integer within the range of the program, it will push a single int onto s1 otherwise it will push the ascii code of each char onto s1 |  |
-| ATG     | TAC       | Start while loop                                                                                                                                                              |  |
-| CTG     | GAC       | End while loop                                                                                                                                                                |  |
-| ATT     | TAA       | Swap S1 and S2 top values.                                                                                                                                                    |  |
-| CTT     | GAA       | Copy top of S1 and push that value back onto S1. Without this, some things become very difficult/impossible (eg, how do you retain a number after an operation?) )            |  |
-
 ## Tips
 
-With functions, have the function return the stack to the state it was before it was called (similar to assembly) if returning nothing. Else, always have return type be top of one stack (possibly S2).
+* With functions, have the function return the stack to the state it was before it was called (similar to assembly) if returning nothing. Else, always have return type be top of one stack (possibly S2).
+* If you are tired of trying to always think up new function names, you can generate an infinite number of valid function names using the pattern /CAT (TAT)* TAC/. Proof of this is left as an exercise to the reader.
+
 
 ## Questions
 
