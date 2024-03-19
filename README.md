@@ -86,7 +86,19 @@ To assist with writing numbers in Acid I have included a helper 'Bas4Convert.py'
 
 #### IO
 
-Certain operations interpret numbers on the stack by their Ascii code, allowing for access to both numerical and string operations.
+Now you may be thinking "if the only data type available is integer numbers, then you can't print and handle strings" but that isn't the case. While everything is treated as a number during stack operations, the input and output operations have the following behaviours:
+
+* Read User Input (opcodes ``CTC`` and ``GAG``)
+
+Acid will first try and interpret the input as an integer number. If successful, this number is pushed on top of stack 1. If the input cannot be interpreted as a number, the ascii value for each character making up the input string is pushed onto stack 1.
+
+* Print as number (opcodes ``AAC`` and ``TTG``)
+
+Acid will print the top value of stack 1 as an integer number
+
+* Print as char (opcodes ``CAC`` and ``GTG``)
+
+Acid will interpret the top value of stack 1 as the integer code for an ascii value and print the corresponding ascii char. For example: if the number on top of stack 1 is 97 then the character 'a' will be output. 
 
 #### Functions
 
@@ -111,7 +123,7 @@ AAA CAT TAC AAA #define function with name 'cattact' between 2 'start function' 
 CAA CAT TAC CAA #declare that the body of funciton 'cattac'is now finished
 ```
 
-*You didn't hear this from me, but the empty string is a valid function name. Do with this information what you will.* 
+*You didn't hear this from me, but the empty string is a valid function name. Do with this information what you will.*
 
 # README BEYOND THIS POINT IS STILL IN PROGRESS
 

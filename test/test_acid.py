@@ -123,6 +123,9 @@ class TestParser:
     def test_missingIfTag(self):
         pass
 
+    def test_ifWithoutElse(self):
+        pass 
+
 class TestInterpreter:
 
     pass
