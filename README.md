@@ -181,11 +181,18 @@ A Turing Machine is defined as the 7-tuple **⟨**Q**,**q**0****,**F**,**Γ**,**
 Suppose you have some Turing Machine T. This can be simulated by Acid in the following manner:
 
 * Create a new, empty Acid program
-* Select some string **s** such that **s** is not an element of **Γ** (**Γ** \ {**s**} == **Γ**)
+* Select some symbol **s** such that **s** is not an element of **Γ** (**Γ** \ {**s**} == **Γ**)
+
+Now we need to stop here for a moment, since this may seem more complicated than it needs to be. Since **Γ** is  a finite set, we can ensure that there is a one to one mapping from numbers (our only data type) in the range allowed by our number of codons used to represent numbers to the symbols. Then, we select some other arbitrary number that hasn't been used to serve as the empty symbol. 
+
+*But what if we have more symbols than numbers? How do we deal with that?* I am glad you asked. In this case, we can increase the number of codons used to represent numbers to increase the range as required. Since we are more concerned with theoretical possibility and not constrained by silly things like machine memory, this is completely fine.
+
+One other thing to note, we have two different representations for 0 and so if you wanted/if it is more convenient, just use one of those instead. 
+
 * For each state in **Q**, create a new function in an Acid program.
 * For each created function, in the function body, create *n* many 'if' statements where *n* is the cardinality of **Γ**. The body of each 'if' statement is the 'return' function for now, and each if statement checks for equality between the top of S1 and one symbol of **Γ**.
 
-That is to say, the body of each function would resemble the pseudo-code below: 
+That is to say, the body of each function would resemble the pseudo-code below:
 
 ```
 
@@ -204,14 +211,14 @@ func state1(){
 //repeat for each other state
 ```
 
-* For each function that does NOT map to a state in **F** , and each **e** ∈ **Γ**, add the following to the contents of the if statement checks for equality with symbol **e**
+* For each function that does NOT map to a state in **F** , and each **e** ∈ **Γ**, add the following to the contents of the if statement that checks for equality with symbol **e**
 
 ```
 popS1()
 pushS1(x)
 ```
 
-Where *x* is the element of **Q** that would be written onto the tape.
+Where *x* is the element of **Q** that would be written onto the tape when in state corresponding to the function's name and symbol *e* is read.
 
 Then, to simulate left transition:
 
@@ -225,7 +232,14 @@ That is, run the opcode that copies the top of S1 to S2 and pops of S1 as this s
 movS2S1()
 ```
 
-!!!! REMEMBER: don't create a new symbol for empty symbol, just check if S1 is empty!!!!! (Or do we need an empty symbol??)
+Finally, call the function with the name of the state that is the new state/state to be transitioned to. 
+
+* For all functions *f*  ∈  F, add a single *return* statement to the function body 
+
+The only potential issue in this particular configurations is if any state does not have a well defined transition for some symbol in the alphabet. In such cases, the body of the corresponding if statement can be an infinite loop.
+
+TODO: Give an example of a Turing machine as an Acid Program
+
 
 # README BEYOND THIS POINT IS STILL IN PROGRESS
 
@@ -359,7 +373,6 @@ Maybe lets get back to this once I have written some more sample programs.
 
 * With functions, have the function return the stack to the state it was before it was called (similar to assembly) if returning nothing. Else, always have return type be top of one stack (possibly S2).
 * If you are tired of trying to always think up new function names, you can generate an infinite number of valid function names using the pattern /CAT (TAT)* TAC/. Proof of this is left as an exercise to the reader.
-
 
 ## Questions
 
